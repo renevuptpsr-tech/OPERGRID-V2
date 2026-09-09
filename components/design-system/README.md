@@ -1,5 +1,10 @@
 # OPERGRID Design System 1.0
 
+Phase 2 adds isolated core primitives and a minimal tooltip. See
+[primitive APIs and verification](primitives/README.md). The Phase 1 audit and
+foundation contract below are retained as the original baseline; the primitives
+and overlays folders now contain Phase 2 implementations. No page is opted in.
+
 Phase 1: presentation audit and design foundation only. No components or pages
 are migrated. OPERGRID is a precise, calm, industrial executive interface inspired
 by control rooms: restrained cyan actions, navy structure, readable operational
