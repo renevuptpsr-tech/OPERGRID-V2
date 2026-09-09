@@ -1,0 +1,152 @@
+/* OPERGRID Design System 1.0. Opt-in only; legacy :root tokens stay intact. */
+[data-og-design-system="1"] {
+  --og-canvas: #f3f5f7;
+  --og-surface: #ffffff;
+  --og-surface-subtle: #f8f9fb;
+  --og-surface-raised: #ffffff;
+  --og-surface-overlay: #ffffff;
+  --og-text: #10202f;
+  --og-text-secondary: #405163;
+  /* Darker than the palette direction's #788795 for readable small text. */
+  --og-text-muted: #617180;
+  --og-text-inverse: #f3f5f7;
+  --og-border: #dce2e8;
+  --og-border-subtle: #e9edf1;
+  --og-border-strong: #788795;
+  --og-brand: #14a8c7;
+  --og-brand-hover: #129ab7;
+  --og-brand-active: #1294af;
+  --og-brand-subtle: #e7f5f8;
+  --og-brand-contrast: #0d2235;
+  --og-success: #087864;
+  --og-success-subtle: #e6f5ef;
+  --og-warning: #8a5700;
+  --og-warning-subtle: #fff3d6;
+  --og-danger: #b52e43;
+  --og-danger-subtle: #fcecef;
+  --og-info: #285e87;
+  --og-info-subtle: #eaf2f9;
+  --og-focus-ring: #087d96;
+
+  --og-font-sans: Arial, "Helvetica Neue", sans-serif;
+  --og-font-mono: Consolas, "Courier New", monospace;
+  --og-font-size-page-title: 1.875rem;
+  --og-font-size-section-title: 1rem;
+  --og-font-size-component-title: 0.875rem;
+  --og-font-size-body: 0.8125rem;
+  --og-font-size-label: 0.75rem;
+  --og-font-size-metadata: 0.6875rem;
+  --og-font-size-micro: 0.625rem;
+  --og-line-height-title: 1.2;
+  --og-line-height-body: 1.5;
+  --og-font-weight-regular: 400;
+  --og-font-weight-medium: 500;
+  --og-font-weight-semibold: 600;
+  --og-tracking-title: -0.02em;
+  --og-tracking-body: 0;
+
+  --og-space-0: 0;
+  --og-space-1: 0.25rem;
+  --og-space-2: 0.5rem;
+  --og-space-3: 0.75rem;
+  --og-space-4: 1rem;
+  --og-space-5: 1.25rem;
+  --og-space-6: 1.5rem;
+  --og-space-8: 2rem;
+  --og-space-10: 2.5rem;
+  --og-space-12: 3rem;
+  --og-radius-control: 8px;
+  --og-radius-panel: 12px;
+  --og-radius-dialog: 16px;
+  --og-radius-shell: 18px;
+  --og-elevation-panel: none;
+  --og-elevation-floating: 0 4px 16px rgb(13 34 53 / 12%);
+  --og-elevation-overlay: 0 12px 36px rgb(13 34 53 / 18%);
+  --og-duration-hover: 140ms;
+  --og-duration-overlay: 180ms;
+  --og-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --og-focus-width: 2px;
+  --og-focus-offset: 2px;
+}
+
+/* Follow the existing resolved .dark class, including system mode. */
+.dark [data-og-design-system="1"],
+[data-og-design-system="1"].dark {
+  --og-canvas: #0a1520;
+  --og-surface: #102231;
+  --og-surface-subtle: #0d1c29;
+  --og-surface-raised: #14324a;
+  --og-surface-overlay: #1a354a;
+  --og-text: #edf3f7;
+  --og-text-secondary: #b8c7d3;
+  --og-text-muted: #93a5b5;
+  --og-text-inverse: #10202f;
+  --og-border: #304657;
+  --og-border-subtle: #233746;
+  --og-border-strong: #6e879b;
+  --og-brand: #36bdd7;
+  --og-brand-hover: #60cde1;
+  --og-brand-active: #21abc6;
+  --og-brand-subtle: #143b49;
+  --og-brand-contrast: #0d2235;
+  --og-success: #51cfac;
+  --og-success-subtle: #103b32;
+  --og-warning: #edc46b;
+  --og-warning-subtle: #3c3018;
+  --og-danger: #ff91a1;
+  --og-danger-subtle: #442532;
+  --og-info: #92c5ee;
+  --og-info-subtle: #1a354e;
+  --og-focus-ring: #60cde1;
+  --og-elevation-floating: 0 4px 16px rgb(0 0 0 / 24%);
+  --og-elevation-overlay: 0 12px 36px rgb(0 0 0 / 36%);
+}
+
+/* Utilities are deliberately opt-in; no element defaults or legacy overrides. */
+:where([data-og-design-system="1"], [data-og-design-system="1"] *) {
+  &.og-ds-type-page-title,
+  &.og-ds-type-section-title,
+  &.og-ds-type-component-title {
+    font-family: var(--og-font-sans);
+    font-weight: var(--og-font-weight-semibold);
+    line-height: var(--og-line-height-title);
+    letter-spacing: var(--og-tracking-title);
+  }
+  &.og-ds-type-page-title { font-size: var(--og-font-size-page-title); }
+  &.og-ds-type-section-title { font-size: var(--og-font-size-section-title); }
+  &.og-ds-type-component-title { font-size: var(--og-font-size-component-title); }
+
+  &.og-ds-type-body,
+  &.og-ds-type-label,
+  &.og-ds-type-metadata,
+  &.og-ds-type-micro {
+    font-family: var(--og-font-sans);
+    font-weight: var(--og-font-weight-regular);
+    line-height: var(--og-line-height-body);
+    letter-spacing: var(--og-tracking-body);
+  }
+  &.og-ds-type-body { font-size: var(--og-font-size-body); }
+  &.og-ds-type-label {
+    font-size: var(--og-font-size-label);
+    font-weight: var(--og-font-weight-medium);
+  }
+  &.og-ds-type-metadata { font-size: var(--og-font-size-metadata); }
+  &.og-ds-type-micro { font-size: var(--og-font-size-micro); }
+
+  &.og-ds-focus:focus-visible {
+    outline: var(--og-focus-width) solid var(--og-focus-ring);
+    outline-offset: var(--og-focus-offset);
+  }
+  &.og-ds-transition {
+    transition-property: color, background-color, border-color;
+    transition-duration: var(--og-duration-hover);
+    transition-timing-function: var(--og-ease-standard);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-og-design-system="1"] {
+    --og-duration-hover: 0ms;
+    --og-duration-overlay: 0ms;
+  }
+}
