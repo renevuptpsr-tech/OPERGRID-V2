@@ -1,5 +1,9 @@
 # OPERGRID Design System 1.0
 
+Phase 3 adds isolated forms, selection controls and date/time pickers. See
+[form APIs, date/time contracts and verification](forms/README.md). No existing
+application page consumes these components or opts into their styles.
+
 Phase 2 adds isolated core primitives and a minimal tooltip. See
 [primitive APIs and verification](primitives/README.md). The Phase 1 audit and
 foundation contract below are retained as the original baseline; the primitives

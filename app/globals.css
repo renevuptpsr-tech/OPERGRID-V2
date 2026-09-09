@@ -2,6 +2,7 @@
 @import "../components/design-system/foundation/tokens.css";
 @import "../components/design-system/primitives/primitives.css";
 @import "../components/design-system/overlays/tooltip.css";
+@import "../components/design-system/forms/forms.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
