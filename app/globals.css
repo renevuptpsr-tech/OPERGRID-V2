@@ -7,6 +7,7 @@
 @import "../components/design-system/navigation/navigation.css";
 @import "../features/platform-shell/platform-shell.css";
 @import "../components/design-system/premium/premium.css";
+@import "../components/design-system/loading/loading.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

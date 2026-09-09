@@ -275,3 +275,161 @@ test("premium platform content header uses breadcrumb only because page identity
     /title=\{page\.title\}/,
   );
 });
+test("premium user directory preserves administration business routes", () => {
+  const source =
+    read(
+      "components/admin/users/user-directory.tsx",
+    );
+
+  assert.match(
+    source,
+    /\/api\/admin\/users\/template/,
+  );
+
+  assert.match(
+    source,
+    /\/api\/admin\/users\/export/,
+  );
+
+  assert.match(
+    source,
+    /\/admin\/users\/import/,
+  );
+
+  assert.match(
+    source,
+    /\/admin\/users\/new/,
+  );
+
+  assert.match(
+    source,
+    /existing_auth_user_id/,
+  );
+
+  assert.match(
+    source,
+    /\?tab=access/,
+  );
+});
+
+test("premium user directory retains all directory states and filters", () => {
+  const source =
+    read(
+      "components/admin/users/user-directory.tsx",
+    );
+
+  for (
+    const state of [
+      "ASSIGNED",
+      "PENDING_PROVISIONING",
+      "UNASSIGNED",
+      "INACTIVE",
+    ]
+  ) {
+    assert.match(
+      source,
+      new RegExp(state),
+    );
+  }
+
+  assert.match(
+    source,
+    /normalizedSearch/,
+  );
+
+  assert.match(
+    source,
+    /pageSize/,
+  );
+
+  assert.match(
+    source,
+    /paginatedUsers/,
+  );
+});
+
+test("premium user directory uses the Stage 2A administration visual system", () => {
+  const source =
+    read(
+      "components/admin/users/user-directory.tsx",
+    );
+
+  const css =
+    read(
+      "components/design-system/premium/premium.css",
+    );
+
+  assert.match(
+    source,
+    /og-admin-directory/,
+  );
+
+  assert.match(
+    source,
+    /og-admin-directory-table/,
+  );
+
+  assert.match(
+    source,
+    /og-admin-directory-search/,
+  );
+
+  assert.match(
+    css,
+    /PREMIUM REBUILD 2\.0 — STAGE 2A/,
+  );
+
+  assert.match(
+    css,
+    /\.og-admin-directory-panel/,
+  );
+
+  assert.match(
+    css,
+    /\.og-admin-row-action/,
+  );
+});
+
+test("premium user directory removes micro seven and eight pixel primary content", () => {
+  const source =
+    read(
+      "components/admin/users/user-directory.tsx",
+    );
+
+  assert.doesNotMatch(
+    source,
+    /text-\[(?:7|8|9)px\]/,
+  );
+});
+test("premium rebuild roadmap keeps User Detail as Stage 2B with anti-spam mutation loading", () => {
+  const readme =
+    read(
+      "components/design-system/premium/README.md",
+    );
+
+  assert.match(
+    readme,
+    /Stage 2B — User Detail/,
+  );
+
+  for (
+    const requirement of [
+      "compact identity hero",
+      "Profile tab",
+      "Access & Role tab",
+      "Account Status tab",
+      "sticky action area",
+      "premium confirm",
+      "loading state for every save",
+      "disabled action controls",
+    ]
+  ) {
+    assert.match(
+      readme,
+      new RegExp(
+        requirement,
+        "i",
+      ),
+    );
+  }
+});
