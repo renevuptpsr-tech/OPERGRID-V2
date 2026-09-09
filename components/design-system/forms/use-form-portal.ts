@@ -1,11 +1,14 @@
 "use client";
-import { useCallback, useState } from "react";
 
-/** Portal to the existing opt-in boundary: escape control clipping, preserve theme inheritance. */
+import { useOverlayPortal } from "../overlays/use-overlay-portal";
+
+/**
+ * Backward-compatible Phase 3 alias.
+ *
+ * New overlay code should use useOverlayPortal directly.
+ * Existing DatePicker, TimePicker, Combobox and range controls may continue
+ * importing useFormPortal without behavior changes.
+ */
 export function useFormPortal() {
-  const [container, setContainer] = useState<HTMLElement | undefined>();
-  const attachHost = useCallback((node: HTMLElement | null) => {
-    if (node) setContainer(node.closest<HTMLElement>('[data-og-design-system="1"]') ?? undefined);
-  }, []);
-  return { container, attachHost };
+  return useOverlayPortal();
 }

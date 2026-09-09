@@ -1,50 +1,122 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactElement } from "react";
-import clsx from "clsx";
+import {
+  useId,
+  type ReactElement,
+} from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-export type TooltipTriggerProps = { "aria-describedby": string };
+import { useOverlayPortal } from "./use-overlay-portal";
+
+export type TooltipTriggerProps = {
+  "aria-describedby": string;
+};
+
+export type TooltipSide =
+  | "top"
+  | "right"
+  | "bottom"
+  | "left";
+
 export type TooltipProps = {
   content: string;
   children: (props: TooltipTriggerProps) => ReactElement;
-  side?: "top" | "bottom";
+  side?: TooltipSide;
+  align?: "start" | "center" | "end";
+  sideOffset?: number;
+  delayDuration?: number;
+  skipDelayDuration?: number;
   className?: string;
-  /** Existing description IDs to preserve on the trigger. */
+
+  /**
+   * Existing aria-describedby IDs owned by the caller.
+   *
+   * Phase 2 compatibility:
+   * Tooltip continues composing the caller's existing description IDs
+   * with its own stable description ID.
+   */
   describedBy?: string;
 };
 
-/** Inline, non-interactive tooltip. Keep its ancestor overflow visible. */
-export function Tooltip({ content, children, side = "top", className, describedBy }: TooltipProps) {
-  const id = useId();
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const open = (hovered || focused) && !dismissed;
+export function Tooltip({
+  content,
+  children,
+  side = "top",
+  align = "center",
+  sideOffset = 6,
+  delayDuration = 350,
+  skipDelayDuration = 250,
+  className,
+  describedBy,
+}: TooltipProps) {
+  const descriptionId = useId();
 
-  useEffect(() => {
-    if (!open) return;
-    function dismiss(event: KeyboardEvent) {
-      if (event.key === "Escape") setDismissed(true);
-    }
-    document.addEventListener("keydown", dismiss);
-    return () => document.removeEventListener("keydown", dismiss);
-  }, [open]);
+  const {
+    container: overlayContainer,
+    attachHost,
+  } = useOverlayPortal();
+
+  const composedDescription = [
+    describedBy,
+    descriptionId,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <span className={clsx("og-ds-tooltip-anchor", className)}
-      onPointerEnter={(event) => {
-        if (event.pointerType === "touch") return;
-        setHovered(true); setDismissed(false);
-      }}
-      onPointerLeave={() => setHovered(false)}
-      onFocus={() => { setFocused(true); setDismissed(false); }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
-      }}>
-      {children({ "aria-describedby": [describedBy, id].filter(Boolean).join(" ") })}
-      <span id={id} role="tooltip" hidden={!open} data-side={side} className="og-ds-tooltip-position">
-        <span className="og-ds-tooltip-content">{content}</span>
+    <span
+      ref={attachHost}
+      className="og-ds-tooltip-host"
+    >
+      {/*
+       * Keep a stable accessible description in the trigger's DOM subtree.
+       *
+       * This preserves the Phase 2 Tooltip public contract and ensures:
+       * - aria-describedby is available before the visual tooltip opens;
+       * - SSR/static markup has a stable description target;
+       * - existing caller description IDs are preserved;
+       * - the visual Radix tooltip may remain portal/collision based.
+       *
+       * This node is not the visible floating surface.
+       */}
+      <span
+        id={descriptionId}
+        role="tooltip"
+        hidden
+      >
+        {content}
       </span>
+
+      <TooltipPrimitive.Provider
+        delayDuration={delayDuration}
+        skipDelayDuration={skipDelayDuration}
+      >
+        <TooltipPrimitive.Root>
+          <TooltipPrimitive.Trigger asChild>
+            {children({
+              "aria-describedby": composedDescription,
+            })}
+          </TooltipPrimitive.Trigger>
+
+          <TooltipPrimitive.Portal container={overlayContainer}>
+            <TooltipPrimitive.Content
+              side={side}
+              align={align}
+              sideOffset={sideOffset}
+              collisionPadding={12}
+              className={
+                className
+                  ? `og-ds-tooltip-content ${className}`
+                  : "og-ds-tooltip-content"
+              }
+            >
+              {content}
+
+              <TooltipPrimitive.Arrow className="og-ds-tooltip-arrow" />
+            </TooltipPrimitive.Content>
+          </TooltipPrimitive.Portal>
+        </TooltipPrimitive.Root>
+      </TooltipPrimitive.Provider>
     </span>
   );
 }
