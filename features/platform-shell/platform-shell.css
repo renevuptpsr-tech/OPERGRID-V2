@@ -46,3 +46,275 @@
     border-radius: var(--og-radius-control);
   }
 }
+/* ==========================================================
+   PHASE 6D.1 — CONTROL ROOM VISUAL CORRECTION
+   ========================================================== */
+
+:where([data-og-design-system="1"]) {
+  /*
+   * Compatibility bridge.
+   *
+   * Existing OPERGRID pages still use several V4 token names.
+   * Inside the new shell they resolve to Design System 1.0 tokens
+   * instead of maintaining a second visual language.
+   */
+  --og-cyan: var(--og-brand);
+  --og-cyan-strong: var(--og-brand);
+  --og-cyan-soft: var(--og-brand-subtle);
+
+  --og-surface-soft: var(--og-surface-subtle);
+  --og-surface-hover: var(--og-surface-subtle);
+
+  --og-border-soft: var(--og-border-subtle);
+
+  --og-teal: var(--og-success);
+  --og-teal-soft: var(--og-success-subtle);
+
+  --og-success-soft: var(--og-success-subtle);
+  --og-warning-soft: var(--og-warning-subtle);
+  --og-danger-soft: var(--og-danger-subtle);
+
+  /*
+   * Sidebar is a structural control-room surface.
+   * It must NOT inherit general workspace/card surface colors.
+   */
+  .og-ds-sidebar {
+    color: var(--og-sidebar-text);
+    background: var(--og-sidebar-bg);
+
+    border-inline-end-color:
+      var(--og-sidebar-divider);
+  }
+
+  .og-ds-sidebar-top,
+  .og-ds-sidebar-header,
+  .og-ds-sidebar-footer {
+    border-color:
+      var(--og-sidebar-divider);
+  }
+
+  .og-ds-sidebar-brand-name {
+    color:
+      var(--og-sidebar-text);
+  }
+
+  .og-ds-sidebar-brand-descriptor,
+  .og-ds-sidebar-group-label {
+    color:
+      var(--og-sidebar-text-muted);
+  }
+
+  .og-ds-sidebar-brand-mark {
+    color:
+      var(--og-brand);
+  }
+
+  /*
+   * Navigation default state.
+   */
+  .og-ds-sidebar-nav-item {
+    color:
+      var(--og-sidebar-text-muted);
+
+    background:
+      transparent;
+
+    border-color:
+      transparent;
+  }
+
+  /*
+   * Hover must visibly communicate interactivity
+   * without becoming a bright SaaS-style highlight.
+   */
+  .og-ds-sidebar-nav-item:hover:not([data-disabled]) {
+    color:
+      var(--og-sidebar-text);
+
+    background:
+      var(--og-sidebar-hover);
+
+    border-color:
+      var(--og-sidebar-divider);
+  }
+
+  /*
+   * Active navigation.
+   *
+   * No white card in Light Mode.
+   * No neon rectangle in Dark Mode.
+   */
+  .og-ds-sidebar-nav-item[data-active] {
+    color:
+      var(--og-sidebar-text);
+
+    background:
+      var(--og-sidebar-active);
+
+    border-color:
+      var(--og-sidebar-active-border);
+  }
+
+  .og-ds-sidebar-nav-item[data-active]:hover:not([data-disabled]) {
+    background:
+      var(--og-sidebar-hover);
+
+    border-color:
+      var(--og-sidebar-active-border);
+  }
+
+  .og-ds-sidebar-nav-icon {
+    color:
+      currentColor;
+  }
+
+  /*
+   * Administration child navigation.
+   */
+  .og-platform-admin-subnav {
+    border-inline-start-color:
+      var(--og-sidebar-divider);
+  }
+
+  /*
+   * Sidebar badges must remain subdued.
+   */
+  .og-ds-sidebar-nav-badge {
+    color:
+      var(--og-sidebar-text);
+
+    background:
+      var(--og-sidebar-surface);
+  }
+
+  /*
+   * System Online footer.
+   *
+   * Previously became a white rectangle in Light Mode because it
+   * used the generic raised-surface token.
+   */
+  .og-platform-system-status {
+    color:
+      var(--og-sidebar-text-muted);
+
+    background:
+      var(--og-sidebar-status-bg);
+
+    border:
+      1px solid
+      var(--og-sidebar-divider);
+  }
+
+  .og-platform-system-dot {
+    background:
+      var(--og-success);
+  }
+
+  /*
+   * Mobile drawer uses exactly the same structural palette as
+   * the desktop sidebar.
+   */
+  .og-ds-mobile-drawer {
+    color:
+      var(--og-sidebar-text);
+
+    background:
+      var(--og-sidebar-bg);
+
+    border-inline-end-color:
+      var(--og-sidebar-divider);
+  }
+
+  /*
+   * Button transitions.
+   * Keep interaction visible without glow.
+   */
+  .og-ds-button {
+    transition:
+      color var(--og-duration-hover) var(--og-ease-standard),
+      background-color var(--og-duration-hover) var(--og-ease-standard),
+      border-color var(--og-duration-hover) var(--og-ease-standard);
+  }
+
+  .og-ds-button[data-variant="primary"]:hover:not(:disabled) {
+    background:
+      var(--og-brand-hover);
+
+    border-color:
+      var(--og-brand-hover);
+  }
+
+  .og-ds-button[data-variant="primary"]:active:not(:disabled) {
+    background:
+      var(--og-brand-active);
+
+    border-color:
+      var(--og-brand-active);
+  }
+
+  /*
+   * Navy / neutral controls get an actual hover state.
+   */
+  .og-ds-button[data-variant="secondary"]:hover:not(:disabled),
+  .og-ds-button[data-variant="ghost"]:hover:not(:disabled) {
+    color:
+      var(--og-text);
+
+    background:
+      var(--og-surface-subtle);
+
+    border-color:
+      var(--og-border);
+  }
+
+  /*
+   * Existing shell/page links that use legacy cyan tokens now
+   * also receive a more controlled hover in dark mode through
+   * the compatibility aliases above.
+   */
+  a,
+  button {
+    transition-duration:
+      var(--og-duration-hover);
+
+    transition-timing-function:
+      var(--og-ease-standard);
+  }
+}
+
+/*
+ * Dark-mode compatibility refinement.
+ *
+ * Cyan is intentionally less luminous than the old V4 value,
+ * especially for Add / Provision User and other primary actions.
+ */
+.dark :where([data-og-design-system="1"]) {
+  --og-cyan-strong:
+    var(--og-brand);
+
+  --og-cyan-soft:
+    var(--og-brand-subtle);
+
+  .og-ds-user-control-trigger:hover {
+    background:
+      var(--og-surface-subtle);
+
+    border-color:
+      var(--og-border);
+  }
+
+  .og-ds-topbar-action-host
+    .og-ds-button:hover:not(:disabled) {
+    background:
+      var(--og-surface-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([data-og-design-system="1"]) {
+    .og-ds-button,
+    .og-ds-sidebar-nav-item {
+      transition: none;
+    }
+  }
+}

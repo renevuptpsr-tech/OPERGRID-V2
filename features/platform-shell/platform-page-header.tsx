@@ -6,7 +6,6 @@ import {
 
 import {
   Breadcrumb,
-  PageHeader,
 } from "@/components/design-system/navigation";
 
 import {
@@ -23,24 +22,21 @@ export function PlatformPageHeader() {
     );
 
   return (
-    <PageHeader
-      title={page.title}
-      breadcrumbs={
-        <Breadcrumb
-          items={[
-            {
-              label: "OPERGRID",
-              href: "/dashboard",
-            },
-            {
-              label: page.section,
-            },
-            {
-              label: page.title,
-            },
-          ]}
-        />
-      }
-    />
+    <div className="og-premium-content-breadcrumb">
+      <Breadcrumb
+        items={[
+          {
+            label: "OPERGRID",
+            href: "/dashboard",
+          },
+          {
+            label: page.section,
+          },
+          {
+            label: page.title,
+          },
+        ]}
+      />
+    </div>
   );
 }

@@ -1,11 +1,13 @@
 "use client";
 
 import {
-  Zap,
+  Network,
 } from "lucide-react";
+
 import {
   usePathname,
 } from "next/navigation";
+
 import {
   type ReactNode,
 } from "react";
@@ -24,6 +26,10 @@ import {
 import {
   ThemeToggle,
 } from "@/components/theme/theme-toggle";
+
+import {
+  resolvePlatformPageInfo,
+} from "./page-registry";
 
 import {
   type PlatformShellIdentity,
@@ -49,7 +55,8 @@ import {
 export type PlatformShellViewProps = {
   children: ReactNode;
   identity: PlatformShellIdentity;
-  moduleAccess: readonly PlatformShellModuleAccess[];
+  moduleAccess:
+    readonly PlatformShellModuleAccess[];
 };
 
 export function PlatformShellView({
@@ -59,6 +66,11 @@ export function PlatformShellView({
 }: PlatformShellViewProps) {
   const pathname =
     usePathname();
+
+  const page =
+    resolvePlatformPageInfo(
+      pathname,
+    );
 
   const shell =
     usePlatformShellController({
@@ -80,11 +92,11 @@ export function PlatformShellView({
             shell.sidebarCollapsed
           }
           name="OPERGRID"
-          descriptor="Operational Platform"
+          descriptor="Grid Operations Intelligence"
           mark={
-            <Zap
-              size={22}
-              strokeWidth={2}
+            <Network
+              size={23}
+              strokeWidth={1.9}
             />
           }
         />
@@ -137,14 +149,26 @@ export function PlatformShellView({
         brand={
           <SidebarBrand
             name="OPERGRID"
-            descriptor="Operational Platform"
+            descriptor="Grid Operations Intelligence"
             mark={
-              <Zap
-                size={22}
-                strokeWidth={2}
+              <Network
+                size={23}
+                strokeWidth={1.9}
               />
             }
           />
+        }
+        footer={
+          <div className="og-platform-system-status">
+            <span
+              className="og-platform-system-dot"
+              aria-hidden="true"
+            />
+
+            <span>
+              System Online
+            </span>
+          </div>
         }
       >
         <PlatformSidebarNavigation
@@ -180,6 +204,17 @@ export function PlatformShellView({
           }
         />
       }
+      context={
+        <div className="og-premium-topbar-context">
+          <span className="og-premium-topbar-eyebrow">
+            {page.section}
+          </span>
+
+          <strong className="og-premium-topbar-title">
+            {page.title}
+          </strong>
+        </div>
+      }
       actions={
         <ThemeToggle />
       }
@@ -197,7 +232,10 @@ export function PlatformShellView({
   );
 
   return (
-    <div data-og-design-system="1">
+    <div
+      data-og-design-system="1"
+      className="og-premium-root"
+    >
       <AppShell
         sidebar={desktopSidebar}
         topbar={topbar}
@@ -211,7 +249,12 @@ export function PlatformShellView({
         <ContentContainer size="wide">
           <PageContent
             header={
-              <PlatformPageHeader />
+              pathname ===
+              "/dashboard"
+                ? undefined
+                : (
+                    <PlatformPageHeader />
+                  )
             }
           >
             {children}

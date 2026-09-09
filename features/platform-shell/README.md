@@ -63,3 +63,43 @@ This phase introduces only:
 - tests and documentation.
 
 Production shell components are intentionally unchanged.
+## Phase 6C — Production activation
+
+The platform route group now composes `PlatformShellView` through
+`app/(platform)/layout.tsx`.
+
+The server boundary remains responsible for:
+
+- loading `CurrentUserContext`;
+- authentication redirect;
+- converting server context through `buildPlatformShellContext`.
+
+The client shell is responsible only for presentation state and navigation
+composition.
+
+Legacy files under `components/layout/` remain available during the controlled
+migration period but are no longer the active platform shell.
+## Phase 6D.1 — Visual correction
+
+Runtime visual validation identified a mismatch between generic workspace
+surface tokens and the permanently-dark operational sidebar.
+
+Phase 6D.1 introduces dedicated shell tokens for:
+
+- sidebar background;
+- sidebar hover;
+- active navigation;
+- sidebar text;
+- structural dividers;
+- sidebar status surface.
+
+The sidebar therefore remains an industrial navy control-room surface in both
+Light and Dark workspace modes.
+
+The phase also:
+
+- removes the temporary root Recharts demo;
+- redirects `/` to `/dashboard`;
+- reduces dark-mode electrical-cyan intensity;
+- bridges legacy V4 page tokens to Design System 1.0 tokens while pages are
+  progressively migrated.

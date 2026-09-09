@@ -279,7 +279,7 @@ test("platform user control is the explicit application auth boundary", () => {
   );
 });
 
-test("new shell view composes Design System without being activated by platform layout", () => {
+test("new shell view composes Design System and is activated by platform layout", () => {
   const source =
     read("platform-shell-view.tsx");
 
@@ -288,6 +288,7 @@ test("new shell view composes Design System without being activated by platform 
   assert.match(source, /Topbar/);
   assert.match(source, /MobileSidebarDrawer/);
   assert.match(source, /ContentContainer/);
+
   assert.match(
     source,
     /data-og-design-system="1"/,
@@ -302,9 +303,19 @@ test("new shell view composes Design System without being activated by platform 
       "utf8",
     );
 
-  assert.doesNotMatch(
+  assert.match(
     layout,
     /PlatformShellView/,
+  );
+
+  assert.match(
+    layout,
+    /buildPlatformShellContext/,
+  );
+
+  assert.doesNotMatch(
+    layout,
+    /@\/components\/layout\/app-shell/,
   );
 });
 
@@ -364,5 +375,202 @@ test("sidebar module item renders a stable ModuleIcon component instead of resol
   assert.doesNotMatch(
     source,
     /resolveModuleIcon\(/,
+  );
+});
+test("production platform layout preserves server authentication redirect after shell activation", () => {
+  const layout =
+    readFileSync(
+      resolve(
+        root,
+        "app/(platform)/layout.tsx",
+      ),
+      "utf8",
+    );
+
+  assert.match(
+    layout,
+    /getCurrentUserContext/,
+  );
+
+  assert.match(
+    layout,
+    /if \(!context\)/,
+  );
+
+  assert.match(
+    layout,
+    /redirect\("\/login"\)/,
+  );
+
+  assert.doesNotMatch(
+    layout,
+    /createClient|auth\.signOut|usePathname|useState/,
+  );
+});
+
+test("production layout delegates identity and module mapping to the shell context adapter", () => {
+  const layout =
+    readFileSync(
+      resolve(
+        root,
+        "app/(platform)/layout.tsx",
+      ),
+      "utf8",
+    );
+
+  assert.match(
+    layout,
+    /buildPlatformShellContext/,
+  );
+
+  assert.match(
+    layout,
+    /identity=\{shell\.identity\}/,
+  );
+
+  assert.match(
+    layout,
+    /shell\.moduleAccess/,
+  );
+
+  assert.doesNotMatch(
+    layout,
+    /profile\?\.display_name|assignment\.is_primary|module\.can_view/,
+  );
+});
+
+test("legacy layout components remain physically available during controlled migration", () => {
+  const legacyFiles = [
+    "components/layout/app-shell.tsx",
+    "components/layout/sidebar.tsx",
+    "components/layout/topbar.tsx",
+    "components/layout/user-menu.tsx",
+    "components/layout/page-header.tsx",
+  ];
+
+  for (const file of legacyFiles) {
+    assert.ok(
+      readFileSync(
+        resolve(root, file),
+        "utf8",
+      ).length > 0,
+    );
+  }
+});
+test("root route no longer renders the old chart foundation and delegates to dashboard", () => {
+  const rootPage =
+    readFileSync(
+      resolve(
+        root,
+        "app/page.tsx",
+      ),
+      "utf8",
+    );
+
+  assert.match(
+    rootPage,
+    /redirect\("\/dashboard"\)/,
+  );
+
+  assert.doesNotMatch(
+    rootPage,
+    /ChartTest|Dashboard Chart Foundation|Recharts/,
+  );
+});
+
+test("foundation provides dedicated sidebar structural tokens for both themes", () => {
+  const tokens =
+    readFileSync(
+      resolve(
+        root,
+        "components/design-system/foundation/tokens.css",
+      ),
+      "utf8",
+    );
+
+  for (
+    const token of [
+      "--og-sidebar-bg",
+      "--og-sidebar-surface",
+      "--og-sidebar-hover",
+      "--og-sidebar-active",
+      "--og-sidebar-active-border",
+      "--og-sidebar-text",
+      "--og-sidebar-text-muted",
+      "--og-sidebar-divider",
+      "--og-sidebar-status-bg",
+    ]
+  ) {
+    assert.match(
+      tokens,
+      new RegExp(token),
+    );
+  }
+});
+
+test("platform shell correction prevents sidebar active and status surfaces from using generic workspace surfaces", () => {
+  const css =
+    read("platform-shell.css");
+
+  assert.match(
+    css,
+    /\.og-ds-sidebar-nav-item\[data-active\]/,
+  );
+
+  assert.match(
+    css,
+    /var\(--og-sidebar-active\)/,
+  );
+
+  assert.match(
+    css,
+    /\.og-platform-system-status/,
+  );
+
+  assert.match(
+    css,
+    /var\(--og-sidebar-status-bg\)/,
+  );
+});
+
+test("legacy platform page visual tokens are bridged to Design System tokens", () => {
+  const css =
+    read("platform-shell.css");
+
+  assert.match(
+    css,
+    /--og-cyan-strong:\s*var\(--og-brand\)/,
+  );
+
+  assert.match(
+    css,
+    /--og-surface-soft:\s*var\(--og-surface-subtle\)/,
+  );
+
+  assert.match(
+    css,
+    /--og-border-soft:\s*var\(--og-border-subtle\)/,
+  );
+});
+
+test("Phase 6D visual correction remains scoped and contains no new hardcoded palette", () => {
+  const css =
+    read("platform-shell.css");
+
+  const marker =
+    css.indexOf(
+      "PHASE 6D.1 — CONTROL ROOM VISUAL CORRECTION",
+    );
+
+  assert.ok(
+    marker >= 0,
+  );
+
+  const patch =
+    css.slice(marker);
+
+  assert.doesNotMatch(
+    patch,
+    /#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i,
   );
 });

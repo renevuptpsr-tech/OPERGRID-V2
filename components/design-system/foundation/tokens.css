@@ -18,6 +18,17 @@
   --og-brand-active: #1294af;
   --og-brand-subtle: #e7f5f8;
   --og-brand-contrast: #0d2235;
+
+  /* Industrial shell / sidebar — intentionally dark in light mode. */
+  --og-sidebar-bg: #0d2235;
+  --og-sidebar-surface: #102c42;
+  --og-sidebar-hover: #14364e;
+  --og-sidebar-active: #123d57;
+  --og-sidebar-active-border: #19a8c7;
+  --og-sidebar-text: #edf4f7;
+  --og-sidebar-text-muted: #98aebe;
+  --og-sidebar-divider: #294459;
+  --og-sidebar-status-bg: #102d42;
   --og-success: #087864;
   --og-success-subtle: #e6f5ef;
   --og-warning: #8a5700;
@@ -84,11 +95,33 @@
   --og-border: #304657;
   --og-border-subtle: #233746;
   --og-border-strong: #6e879b;
-  --og-brand: #36bdd7;
-  --og-brand-hover: #60cde1;
-  --og-brand-active: #21abc6;
-  --og-brand-subtle: #143b49;
+  --og-brand: #2999b5;
+  --og-brand-hover: #31a6c0;
+  --og-brand-active: #2a94ad;
+  --og-brand-subtle: #102f3b;
   --og-brand-contrast: #0d2235;
+
+  /* Dark workspace gets a slightly deeper control-room sidebar. */
+  --og-sidebar-bg: #081824;
+  --og-sidebar-surface: #0b2233;
+  --og-sidebar-hover: #103149;
+  --og-sidebar-active: #123a52;
+  --og-sidebar-active-border: #279eb8;
+  --og-sidebar-text: #edf4f7;
+  --og-sidebar-text-muted: #93a9b9;
+  --og-sidebar-divider: #20394b;
+  --og-sidebar-status-bg: #0c2638;
+
+  /* Industrial shell / sidebar — intentionally dark in light mode. */
+  --og-sidebar-bg: #0d2235;
+  --og-sidebar-surface: #102c42;
+  --og-sidebar-hover: #14364e;
+  --og-sidebar-active: #123d57;
+  --og-sidebar-active-border: #19a8c7;
+  --og-sidebar-text: #edf4f7;
+  --og-sidebar-text-muted: #98aebe;
+  --og-sidebar-divider: #294459;
+  --og-sidebar-status-bg: #102d42;
   --og-success: #51cfac;
   --og-success-subtle: #103b32;
   --og-warning: #edc46b;
@@ -97,7 +130,7 @@
   --og-danger-subtle: #442532;
   --og-info: #92c5ee;
   --og-info-subtle: #1a354e;
-  --og-focus-ring: #60cde1;
+  --og-focus-ring: #36a9c1;
   --og-elevation-floating: 0 4px 16px rgb(0 0 0 / 24%);
   --og-elevation-overlay: 0 12px 36px rgb(0 0 0 / 36%);
 }
@@ -149,4 +182,233 @@
     --og-duration-hover: 0ms;
     --og-duration-overlay: 0ms;
   }
+}
+
+/* ==========================================================
+   OPERGRID PREMIUM REBUILD 2.0
+   Visual direction:
+   Grid Operations Intelligence / Enterprise Control Center
+   ========================================================== */
+
+[data-og-design-system="1"] {
+  /* Workspace */
+  --og-premium-canvas: #f5f8fb;
+  --og-premium-canvas-soft: #eef5f9;
+
+  /* Structural surfaces */
+  --og-premium-surface: #ffffff;
+  --og-premium-surface-soft: #f7fafc;
+  --og-premium-surface-muted: #eef4f7;
+  --og-premium-surface-raised: #ffffff;
+
+  /* Topbar */
+  --og-premium-topbar: rgba(255, 255, 255, 0.94);
+
+  /* Sidebar — LIGHT MODE IS LIGHT */
+  --og-sidebar-bg: #ffffff;
+  --og-sidebar-surface: #f5f9fb;
+  --og-sidebar-hover: #eef8fb;
+  --og-sidebar-active: #dff5fa;
+  --og-sidebar-active-border: #16abc7;
+  --og-sidebar-text: #27445e;
+  --og-sidebar-text-strong: #102a40;
+  --og-sidebar-text-muted: #667f93;
+  --og-sidebar-divider: #e1eaf0;
+  --og-sidebar-status-bg: #f7fafc;
+
+  /* Brand */
+  --og-premium-on-accent: #ffffff;
+  --og-premium-cyan: #0eaac8;
+  --og-premium-cyan-hover: #0799b5;
+  --og-premium-cyan-active: #0789a2;
+  --og-premium-cyan-soft: #e3f7fa;
+
+  --og-premium-teal: #18b99e;
+  --og-premium-teal-soft: #e5f8f3;
+
+  /* Text */
+  --og-premium-text: #102439;
+  --og-premium-text-secondary: #456078;
+  --og-premium-text-muted: #758ba0;
+  --og-premium-text-faint: #9aabba;
+
+  /* Borders */
+  --og-premium-border: #dce7ed;
+  --og-premium-border-soft: #e9f0f4;
+  --og-premium-border-strong: #c7d6df;
+
+  /* Elevation */
+  --og-premium-shadow-card:
+    0 1px 2px rgb(17 43 64 / 4%),
+    0 10px 28px rgb(17 43 64 / 6%);
+
+  --og-premium-shadow-floating:
+    0 12px 36px rgb(16 42 64 / 13%);
+
+  --og-premium-shadow-dialog:
+    0 28px 80px rgb(11 31 47 / 22%);
+
+  /* Hero */
+  --og-premium-hero-start: #fafdff;
+  --og-premium-hero-end: #edf9fc;
+
+  /* Overlay */
+  --og-premium-backdrop:
+    rgb(9 29 44 / 48%);
+
+  /* Compatibility aliases for existing OPERGRID pages */
+  --og-cyan: var(--og-premium-cyan);
+  --og-cyan-strong: var(--og-premium-cyan);
+  --og-cyan-soft: var(--og-premium-cyan-soft);
+
+  --og-teal: var(--og-premium-teal);
+  --og-teal-soft: var(--og-premium-teal-soft);
+
+  --og-canvas-soft: var(--og-premium-canvas-soft);
+  --og-surface-soft: var(--og-premium-surface-soft);
+  --og-surface-hover: var(--og-premium-surface-muted);
+  --og-border-soft: var(--og-premium-border-soft);
+
+  --og-font-sans:
+    var(--font-geist-sans),
+    "Segoe UI Variable",
+    "Segoe UI",
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  --og-font-display:
+    var(--font-geist-sans),
+    "Segoe UI Variable Display",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  --og-font-mono:
+    var(--font-geist-mono),
+    "Cascadia Code",
+    Consolas,
+    "Courier New",
+    monospace;
+
+  --og-font-weight-book: 450;
+  --og-font-weight-medium: 500;
+  --og-font-weight-semibold: 600;
+  --og-font-weight-bold: 700;
+
+  --og-tracking-display: -0.035em;
+  --og-tracking-heading: -0.022em;
+  --og-tracking-body: -0.006em;
+  --og-tracking-label: 0.015em;
+  --og-tracking-micro: 0.085em;
+}
+
+.dark [data-og-design-system="1"],
+[data-og-design-system="1"].dark {
+  /* Workspace */
+  --og-premium-canvas: #061522;
+  --og-premium-canvas-soft: #081b2a;
+
+  /* Structural surfaces */
+  --og-premium-surface: #0a1d2c;
+  --og-premium-surface-soft: #0c2233;
+  --og-premium-surface-muted: #102a3d;
+  --og-premium-surface-raised: #0d2435;
+
+  /* Topbar */
+  --og-premium-topbar: rgba(6, 21, 34, 0.94);
+
+  /* Sidebar */
+  --og-sidebar-bg: #05131f;
+  --og-sidebar-surface: #081d2c;
+  --og-sidebar-hover: #0b2940;
+  --og-sidebar-active: #0c344c;
+  --og-sidebar-active-border: #19bad6;
+  --og-sidebar-text: #9db7c9;
+  --og-sidebar-text-strong: #edf7fb;
+  --og-sidebar-text-muted: #7390a4;
+  --og-sidebar-divider: #173247;
+  --og-sidebar-status-bg: #081e2e;
+
+  /* Brand — restrained, not neon */
+  --og-premium-cyan: #20b1cb;
+  --og-premium-cyan-hover: #28bdd7;
+  --og-premium-cyan-active: #199db7;
+  --og-premium-cyan-soft: #0c3342;
+
+  --og-premium-teal: #27c2a7;
+  --og-premium-teal-soft: #0c392f;
+
+  /* Text */
+  --og-premium-text: #edf6fa;
+  --og-premium-text-secondary: #adc1cf;
+  --og-premium-text-muted: #7f9aae;
+  --og-premium-text-faint: #5f7a8e;
+
+  /* Borders */
+  --og-premium-border: #17384f;
+  --og-premium-border-soft: #102f43;
+  --og-premium-border-strong: #285069;
+
+  /* Elevation */
+  --og-premium-shadow-card:
+    0 1px 2px rgb(0 0 0 / 16%),
+    0 14px 38px rgb(0 0 0 / 18%);
+
+  --og-premium-shadow-floating:
+    0 18px 48px rgb(0 0 0 / 30%);
+
+  --og-premium-shadow-dialog:
+    0 32px 90px rgb(0 0 0 / 48%);
+
+  /* Hero */
+  --og-premium-hero-start: #092436;
+  --og-premium-hero-end: #071c2c;
+
+  --og-premium-backdrop:
+    rgb(0 8 14 / 70%);
+
+  /* Bridge DS core tokens into premium dark language */
+  --og-canvas: var(--og-premium-canvas);
+  --og-surface: var(--og-premium-surface);
+  --og-surface-subtle: var(--og-premium-surface-soft);
+  --og-surface-raised: var(--og-premium-surface-raised);
+  --og-surface-overlay: var(--og-premium-surface-raised);
+
+  --og-text: var(--og-premium-text);
+  --og-text-secondary: var(--og-premium-text-secondary);
+  --og-text-muted: var(--og-premium-text-muted);
+
+  --og-border: var(--og-premium-border);
+  --og-border-subtle: var(--og-premium-border-soft);
+  --og-border-strong: var(--og-premium-border-strong);
+
+  --og-brand: var(--og-premium-cyan);
+  --og-brand-hover: var(--og-premium-cyan-hover);
+  --og-brand-active: var(--og-premium-cyan-active);
+  --og-brand-subtle: var(--og-premium-cyan-soft);
+
+  --og-focus-ring: #27a7c0;
+}
+
+/* Light bridge is intentionally declared after base DS tokens. */
+[data-og-design-system="1"]:not(.dark) {
+  --og-canvas: var(--og-premium-canvas);
+  --og-surface: var(--og-premium-surface);
+  --og-surface-subtle: var(--og-premium-surface-soft);
+  --og-surface-raised: var(--og-premium-surface-raised);
+  --og-surface-overlay: var(--og-premium-surface-raised);
+
+  --og-text: var(--og-premium-text);
+  --og-text-secondary: var(--og-premium-text-secondary);
+  --og-text-muted: var(--og-premium-text-muted);
+
+  --og-border: var(--og-premium-border);
+  --og-border-subtle: var(--og-premium-border-soft);
+  --og-border-strong: var(--og-premium-border-strong);
+
+  --og-brand: var(--og-premium-cyan);
+  --og-brand-hover: var(--og-premium-cyan-hover);
+  --og-brand-active: var(--og-premium-cyan-active);
+  --og-brand-subtle: var(--og-premium-cyan-soft);
 }
