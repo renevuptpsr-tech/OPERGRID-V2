@@ -5,6 +5,7 @@
 @import "../components/design-system/forms/forms.css";
 @import "../components/design-system/overlays/overlays.css";
 @import "../components/design-system/navigation/navigation.css";
+@import "../features/platform-shell/platform-shell.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

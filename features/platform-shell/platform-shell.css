@@ -1,0 +1,48 @@
+:where([data-og-design-system="1"]) {
+  .og-platform-admin-subnav {
+    display: grid;
+    gap: var(--og-space-1);
+
+    margin-inline-start:
+      var(--og-space-5);
+
+    margin-block-start:
+      var(--og-space-1);
+
+    padding-inline-start:
+      var(--og-space-2);
+
+    border-inline-start:
+      1px solid
+      var(--og-border-strong);
+  }
+
+  .og-platform-system-status {
+    min-height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+
+    padding-inline:
+      var(--og-space-2);
+
+    color: var(--og-text-muted);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+
+    font-size: var(--og-font-size-metadata);
+    line-height: var(--og-line-height-body);
+  }
+
+  .og-platform-system-dot {
+    width: 7px;
+    height: 7px;
+
+    flex: none;
+
+    background: var(--og-success);
+    border-radius: var(--og-radius-control);
+  }
+}
