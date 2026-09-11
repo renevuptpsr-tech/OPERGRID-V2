@@ -27,6 +27,10 @@ import {
   Panel,
 } from "@/components/ui";
 
+import {
+  AlertDialog,
+} from "@/components/design-system/overlays";
+
 import type {
   UserImportAction,
   UserImportPreviewResult,
@@ -97,6 +101,36 @@ function severityBadge(
   }
 }
 
+
+type UserImportExecuteRow = {
+  rowNumber: number;
+  email: string;
+  action: string;
+  status:
+    | "SUCCESS"
+    | "FAILED"
+    | "SKIPPED";
+  message: string;
+  userId:
+    | string
+    | null;
+  addedAssignments: number;
+};
+
+
+type UserImportExecuteResult = {
+  fileName: string;
+  executedAt: string;
+  summary: {
+    totalUsers: number;
+    successUsers: number;
+    failedUsers: number;
+    skippedUsers: number;
+    addedAssignments: number;
+  };
+  rows:
+    UserImportExecuteRow[];
+};
 
 export function UserImportPreview() {
   const inputRef =
@@ -207,7 +241,53 @@ export function UserImportPreview() {
     );
 
 
+  const [
+    importing,
+    setImporting,
+  ] =
+    useState(
+      false
+    );
+
+
+  const [
+    executeResult,
+    setExecuteResult,
+  ] =
+    useState<UserImportExecuteResult | null>(
+      null
+    );
+
+
+  const [
+    importError,
+    setImportError,
+  ] =
+    useState<string | null>(
+      null
+    );
+
+
+  const [
+    importCompleted,
+    setImportCompleted,
+  ] =
+    useState(
+      false
+    );
+
   async function analyze() {
+    setExecuteResult(
+      null
+    );
+
+    setImportError(
+      null
+    );
+
+    setImportCompleted(
+      false
+    );
     if (
       !file ||
       loading
@@ -291,7 +371,90 @@ export function UserImportPreview() {
   }
 
 
+  async function executeImport() {
+    if (
+      !file ||
+      !preview ||
+      importing ||
+      importCompleted
+    ) {
+      return;
+    }
+
+    setImporting(
+      true
+    );
+
+    setImportError(
+      null
+    );
+
+    try {
+      const formData =
+        new FormData();
+
+      formData.append(
+        "file",
+        file
+      );
+
+      const response =
+        await fetch(
+          "/api/admin/users/import/execute",
+          {
+            method:
+              "POST",
+            body:
+              formData,
+          }
+        );
+
+      const payload =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          typeof payload?.error ===
+            "string"
+            ? payload.error
+            : "Bulk Import User gagal dijalankan."
+        );
+      }
+
+      setExecuteResult(
+        payload as UserImportExecuteResult
+      );
+
+      setImportCompleted(
+        true
+      );
+
+    } catch (error) {
+      setImportError(
+        error instanceof Error
+          ? error.message
+          : "Bulk Import User gagal dijalankan."
+      );
+
+    } finally {
+      setImporting(
+        false
+      );
+    }
+  }
+
   function reset() {
+    setExecuteResult(
+      null
+    );
+
+    setImportError(
+      null
+    );
+
+    setImportCompleted(
+      false
+    );
     setFile(
       null
     );
@@ -1115,45 +1278,207 @@ export function UserImportPreview() {
             padding="md"
           >
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-4">
 
-              <div>
+              {executeResult && (
+                <div className="space-y-3">
 
-                <div className="og-text text-[9px] font-semibold">
-                  Preview only
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+
+                    <Summary
+                      label="Success"
+                      value={executeResult.summary.successUsers}
+                      variant="success"
+                    />
+
+                    <Summary
+                      label="Failed"
+                      value={executeResult.summary.failedUsers}
+                      variant="danger"
+                    />
+
+                    <Summary
+                      label="Skipped"
+                      value={executeResult.summary.skippedUsers}
+                      variant="neutral"
+                    />
+
+                    <Summary
+                      label="Access Added"
+                      value={executeResult.summary.addedAssignments}
+                      variant="success"
+                    />
+
+                  </div>
+
+                  <div
+                    className="max-h-56 overflow-auto rounded-[9px] border"
+                    style={{
+                      borderColor:
+                        "var(--og-border)",
+                    }}
+                  >
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <Th>
+                            User
+                          </Th>
+                          <Th>
+                            Action
+                          </Th>
+                          <Th>
+                            Result
+                          </Th>
+                          <Th>
+                            Message
+                          </Th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {executeResult.rows.map(
+                          (row) => (
+                            <tr
+                              key={`${row.rowNumber}-${row.email}`}
+                              className="border-t"
+                              style={{
+                                borderColor:
+                                  "var(--og-border)",
+                              }}
+                            >
+                              <td className="px-3 py-2">
+                                <div className="og-text text-[8px] font-medium">
+                                  {row.email}
+                                </div>
+                              </td>
+
+                              <td className="px-3 py-2">
+                                <div className="og-muted text-[8px]">
+                                  {row.action}
+                                </div>
+                              </td>
+
+                              <td className="px-3 py-2">
+                                <Badge
+                                  variant={
+                                    row.status === "SUCCESS"
+                                      ? "success"
+                                      : row.status === "FAILED"
+                                        ? "danger"
+                                        : "neutral"
+                                  }
+                                >
+                                  {row.status}
+                                </Badge>
+                              </td>
+
+                              <td className="px-3 py-2">
+                                <div className="og-muted text-[8px]">
+                                  {row.message}
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
                 </div>
+              )}
 
-                <p className="og-muted mt-0.5 text-[8px]">
-                  Belum ada perubahan yang dilakukan pada Supabase.
-                </p>
-
-              </div>
-
-
-              <div className="flex items-center gap-2">
-
-                <Link
-                  href="/admin/users"
-                  className="inline-flex h-9 items-center gap-2 rounded-[9px] border px-4 text-[9px] font-semibold"
+              {importError && (
+                <div
+                  className="rounded-[9px] border px-3 py-2 text-[8px]"
                   style={{
                     borderColor:
-                      "var(--og-border)",
+                      "var(--og-danger)",
+                    color:
+                      "var(--og-danger)",
                   }}
                 >
-                  <ArrowLeft
-                    size={13}
+                  {importError}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+                  <div className="og-text text-[9px] font-semibold">
+                    {importCompleted
+                      ? "Import completed"
+                      : "Ready to import"}
+                  </div>
+
+                  <p className="og-muted mt-0.5 text-[8px]">
+                    {importCompleted
+                      ? "Hasil import sudah diterapkan. Analyze ulang file sebelum menjalankan import berikutnya."
+                      : "Server akan melakukan validasi ulang sebelum perubahan diterapkan."}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+
+                  <Link
+                    href="/admin/users"
+                    className="inline-flex h-9 items-center gap-2 rounded-[9px] border px-4 text-[9px] font-semibold"
+                    style={{
+                      borderColor:
+                        "var(--og-border)",
+                    }}
+                  >
+                    <ArrowLeft
+                      size={13}
+                    />
+
+                    Back
+                  </Link>
+
+                  <AlertDialog
+                    title="Confirm Bulk Import"
+                    description="OPERGRID akan melakukan validasi ulang file di server lalu menerapkan seluruh user dan access yang valid. Existing access tidak akan dihapus."
+                    confirmLabel={
+                      importing
+                        ? "Importing..."
+                        : "Import Valid Users"
+                    }
+                    cancelLabel="Cancel"
+                    loading={importing}
+                    disabled={
+                      importing ||
+                      importCompleted ||
+                      !file ||
+                      preview.globalErrors.length > 0 ||
+                      !preview.rows.some(
+                        (row) =>
+                          row.severity !== "ERROR" &&
+                          row.action !== "NO_CHANGE"
+                      )
+                    }
+                    onConfirm={executeImport}
+                    trigger={
+                      <Button
+                        type="button"
+                        loading={importing}
+                        disabled={
+                          importing ||
+                          importCompleted ||
+                          !file ||
+                          preview.globalErrors.length > 0 ||
+                          !preview.rows.some(
+                        (row) =>
+                          row.severity !== "ERROR" &&
+                          row.action !== "NO_CHANGE"
+                      )
+                        }
+                      >
+                        Import Valid Users
+                      </Button>
+                    }
                   />
 
-                  Back
-                </Link>
-
-
-                <Button
-                  type="button"
-                  disabled
-                >
-                  Import Valid Users
-                </Button>
+                </div>
 
               </div>
 

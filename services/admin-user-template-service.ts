@@ -92,19 +92,17 @@ function normalizeScopeLevel(
 }
 
 
-async function assertSuperAdmin() {
+async function assertAdminOrSuperAdmin() {
   const supabase =
     await createClient();
-
 
   const {
     data,
     error,
   } =
     await supabase.rpc(
-      "opg_fn_is_super_admin"
+      "opg_fn_is_admin_or_super_admin"
     );
-
 
   if (error) {
     throw new Error(
@@ -112,10 +110,9 @@ async function assertSuperAdmin() {
     );
   }
 
-
   if (!data) {
     throw new Error(
-      "Hanya Super Administrator yang dapat mengunduh User Import Template."
+      "Hanya Administrator atau Super Administrator yang dapat mengunduh User Import Template."
     );
   }
 }
@@ -385,7 +382,7 @@ function addListValidation(
 
 
 export async function generateUserImportTemplate() {
-  await assertSuperAdmin();
+  await assertAdminOrSuperAdmin();
 
 
   const admin =

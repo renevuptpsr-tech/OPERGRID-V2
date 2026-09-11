@@ -8,9 +8,12 @@ import {
 
 import {
   Badge,
-  Button,
   EmptyState,
 } from "@/components/ui";
+
+import {
+  ConfirmedServerAction,
+} from "@/components/ui/confirmed-server-action";
 
 import type {
   AdminUserAssignment,
@@ -18,19 +21,28 @@ import type {
 
 import {
   deactivateUserAssignmentAction,
+  deleteUserAssignmentAction,
 } from "@/app/(platform)/admin/users/[user_id]/actions";
 
-
 type UserAssignmentListProps = {
-  userId: string;
-  assignments: AdminUserAssignment[];
-};
 
+  userId:
+    string;
+
+  assignments:
+    AdminUserAssignment[];
+
+  canDeactivate:
+    boolean;
+
+  canDelete:
+    boolean;
+};
 
 function formatDate(
   value:
     | string
-    | null
+    | null,
 ) {
   if (!value) {
     return "No expiry";
@@ -38,14 +50,15 @@ function formatDate(
 
   return value.slice(
     0,
-    10
+    10,
   );
 }
-
 
 export function UserAssignmentList({
   userId,
   assignments,
+  canDeactivate,
+  canDelete,
 }: UserAssignmentListProps) {
   if (
     assignments.length ===
@@ -56,7 +69,7 @@ export function UserAssignmentList({
         icon={
           <ShieldCheck
             size={19}
-            strokeWidth={1.7}
+            strokeWidth={1.8}
           />
         }
         title="No role assignments"
@@ -65,170 +78,234 @@ export function UserAssignmentList({
     );
   }
 
-
   return (
-    <div className="space-y-3">
-
+    <div className="og-user-assignment-list">
       {assignments.map(
-        (assignment) => (
-          <div
-            key={
-              assignment.assignment_id
-            }
-            className="og-assignment-card rounded-[13px] border p-4"
-          >
+        (assignment) => {
+          const roleName =
+            assignment.role_name ??
+            assignment.role_code ??
+            "Unknown Role";
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          const scopeName =
+            assignment.scope_name ??
+            "GLOBAL";
 
-              <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]"
-                style={{
-                  color:
-                    "var(--og-cyan-strong)",
-
-                  background:
-                    "var(--og-cyan-soft)",
-                }}
-              >
+          return (
+            <article
+              key={
+                assignment.assignment_id
+              }
+              className="og-user-assignment-card"
+            >
+              <div className="og-user-assignment-card-icon">
                 <ShieldCheck
-                  size={17}
-                  strokeWidth={1.8}
+                  size={18}
+                  strokeWidth={1.9}
                 />
               </div>
 
+              <div className="og-user-assignment-card-main">
+                <div className="og-user-assignment-card-title">
+                  <strong>
+                    {roleName}
+                  </strong>
 
-              <div className="min-w-0 flex-1">
-
-                <div className="flex flex-wrap items-center gap-2">
-
-                  <span className="og-text text-[11px] font-semibold">
-                    {assignment.role_name ??
-                      assignment.role_code ??
-                      "Unknown Role"}
-                  </span>
-
-                  <Badge
-                    variant="info"
-                  >
+                  <Badge variant="info">
                     {assignment.role_code ??
                       "-"}
                   </Badge>
 
-                  {assignment.is_primary && (
+                  {assignment.is_primary ? (
                     <Badge
                       variant="success"
                       dot
                     >
                       Primary
                     </Badge>
-                  )}
+                  ) : null}
 
-                  {!assignment.is_active && (
-                    <Badge
-                      variant="neutral"
-                    >
+                  {!assignment.is_active ? (
+                    <Badge variant="neutral">
                       Inactive
                     </Badge>
-                  )}
-
+                  ) : null}
                 </div>
 
-
-                <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2">
-
-                  <span className="og-muted flex items-center gap-1.5 text-[9px]">
+                <div className="og-user-assignment-card-meta">
+                  <span>
                     <Building2
-                      size={12}
+                      size={13}
                     />
 
-                    {assignment.scope_name ??
-                      "GLOBAL"}
+                    {scopeName}
                   </span>
 
-                  <span className="og-muted flex items-center gap-1.5 text-[9px]">
+                  <span>
                     <CalendarDays
-                      size={12}
+                      size={13}
                     />
 
                     {formatDate(
-                      assignment.valid_from
+                      assignment.valid_from,
                     )}
+
                     {" → "}
+
                     {formatDate(
-                      assignment.valid_until
+                      assignment.valid_until,
                     )}
                   </span>
 
-                  {assignment.include_children && (
-                    <span className="og-muted flex items-center gap-1.5 text-[9px]">
+                  {assignment.include_children ? (
+                    <span>
                       <CheckCircle2
-                        size={12}
+                        size={13}
                       />
 
                       Child scope included
                     </span>
-                  )}
-
+                  ) : null}
                 </div>
 
-
-                {assignment.notes && (
-                  <p className="og-muted mt-2.5 text-[8px]">
+                {assignment.notes ? (
+                  <p className="og-user-assignment-notes">
                     {assignment.notes}
                   </p>
-                )}
-
+                ) : null}
               </div>
 
-
-              {assignment.is_active && (
-                <form
-                  action={
-                    deactivateUserAssignmentAction
-                  }
-                  className="shrink-0"
-                >
-
-                  <input
-                    type="hidden"
-                    name="user_id"
-                    value={
-                      userId
+              {assignment.is_active && canDeactivate ? (
+                <div className="og-user-assignment-card-action">
+                  <ConfirmedServerAction
+                    action={
+                      deactivateUserAssignmentAction
                     }
-                  />
+                    fields={{
+                      user_id:
+                        userId,
 
-                  <input
-                    type="hidden"
-                    name="assignment_id"
-                    value={
-                      assignment.assignment_id
+                      assignment_id:
+                        assignment.assignment_id,
+                    }}
+                    triggerLabel="Deactivate"
+                    confirmTitle="Deactivate Role Assignment?"
+                    confirmDescription={
+                      <>
+                        Role{" "}
+                        <strong>
+                          {roleName}
+                        </strong>{" "}
+                        pada scope{" "}
+                        <strong>
+                          {scopeName}
+                        </strong>{" "}
+                        akan dinonaktifkan.
+                      </>
                     }
-                  />
-
-                  <Button
-                    type="submit"
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={
+                    confirmLabel="Deactivate Assignment"
+                    triggerVariant="ghost"
+                    triggerSize="sm"
+                    triggerIcon={
                       <Trash2
                         size={13}
-                        strokeWidth={1.8}
+                        strokeWidth={1.9}
                       />
                     }
-                    className="text-[var(--og-danger)]"
+                    className="og-user-assignment-deactivate"
                   >
-                    Deactivate
-                  </Button>
+                    <div className="og-sensitive-action-summary">
+                      <span>
+                        Role
+                        <strong>
+                          {roleName}
+                        </strong>
+                      </span>
 
-                </form>
-              )}
+                      <span>
+                        Scope
+                        <strong>
+                          {scopeName}
+                        </strong>
+                      </span>
+                    </div>
 
-            </div>
+                    <p className="og-sensitive-action-note">
+                      Assignment tidak dihapus dari database.
+                      Statusnya hanya dinonaktifkan sehingga tetap
+                      tersedia untuk audit dan riwayat akses.
+                    </p>
+                  </ConfirmedServerAction>
+                </div>
+              ) : null}
 
-          </div>
-        )
+              {!assignment.is_active && canDelete ? (
+                <div className="og-user-assignment-card-action">
+                  <ConfirmedServerAction
+                    action={
+                      deleteUserAssignmentAction
+                    }
+                    fields={{
+                      user_id:
+                        userId,
+
+                      assignment_id:
+                        assignment.assignment_id,
+                    }}
+                    triggerLabel="Delete Assignment"
+                    confirmTitle="Delete Role Assignment Permanently?"
+                    confirmDescription={
+                      <>
+                        Role{" "}
+                        <strong>
+                          {roleName}
+                        </strong>{" "}
+                        pada scope{" "}
+                        <strong>
+                          {scopeName}
+                        </strong>{" "}
+                        akan dihapus permanen dari Role Assignment.
+                      </>
+                    }
+                    confirmLabel="Delete Permanently"
+                    triggerVariant="danger"
+                    triggerSize="sm"
+                    triggerIcon={
+                      <Trash2
+                        size={13}
+                        strokeWidth={1.9}
+                      />
+                    }
+                    className="og-user-assignment-deactivate"
+                  >
+                    <div className="og-sensitive-action-summary">
+                      <span>
+                        Role
+                        <strong>
+                          {roleName}
+                        </strong>
+                      </span>
+
+                      <span>
+                        Scope
+                        <strong>
+                          {scopeName}
+                        </strong>
+                      </span>
+                    </div>
+
+                    <p className="og-sensitive-action-note">
+                      Assignment ini sudah inactive dan akan dihapus
+                      permanen dari database. Tindakan ini hanya tersedia
+                      untuk SUPER_ADMIN.
+                    </p>
+                  </ConfirmedServerAction>
+                </div>
+              ) : null}
+            </article>
+          );
+        },
       )}
-
     </div>
   );
 }

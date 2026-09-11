@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   Building2,
   Mail,
+  ShieldCheck,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -14,7 +15,6 @@ import {
 
 import {
   Badge,
-  Panel,
 } from "@/components/ui";
 
 import {
@@ -24,6 +24,7 @@ import {
   getAdminScopeOptions,
   getAdminUserAssignments,
   getAdminUserDetail,
+  getUserDetailCapabilities,
 } from "@/services/admin-user-detail-service";
 
 import {
@@ -50,12 +51,10 @@ import {
   ActionResultModal,
 } from "@/components/ui/action-result-modal";
 
-
 type UserTab =
   | "profile"
   | "access"
   | "status";
-
 
 type PageProps = {
   params:
@@ -71,9 +70,8 @@ type PageProps = {
     }>;
 };
 
-
 function initials(
-  value: string
+  value: string,
 ) {
   return value
     .split(/\s+/)
@@ -83,16 +81,15 @@ function initials(
       (part) =>
         part
           .charAt(0)
-          .toUpperCase()
+          .toUpperCase(),
     )
     .join("");
 }
 
-
 function statusVariant(
   status:
     | string
-    | null
+    | null,
 ) {
   if (
     status ===
@@ -118,24 +115,20 @@ function statusVariant(
   return "neutral" as const;
 }
 
-
 function resolveTab(
   value:
     | string
-    | undefined
+    | undefined,
 ): UserTab {
   if (
-    value ===
-      "access" ||
-    value ===
-      "status"
+    value === "access" ||
+    value === "status"
   ) {
     return value;
   }
 
   return "profile";
 }
-
 
 export default async function UserDetailPage({
   params,
@@ -150,20 +143,13 @@ export default async function UserDetailPage({
       searchParams,
     ]);
 
-
   const userId =
     routeParams.user_id;
 
-
   const initialTab =
     resolveTab(
-      query.tab
+      query.tab,
     );
-
-
-  /*
-   * All independent requests execute in parallel.
-   */
 
   const [
     user,
@@ -172,30 +158,28 @@ export default async function UserDetailPage({
     jobs,
     organizations,
     scopes,
+    capabilities,
   ] =
     await Promise.all([
       getAdminUserDetail(
-        userId
+        userId,
       ),
-
       getAdminUserAssignments(
+        userId,
+      ),
+      getAdminRoleOptions(),
+      getAdminJobOptions(),
+      getAdminOrganizationOptions(),
+      getAdminScopeOptions(),
+
+      getUserDetailCapabilities(
         userId
       ),
-
-      getAdminRoleOptions(),
-
-      getAdminJobOptions(),
-
-      getAdminOrganizationOptions(),
-
-      getAdminScopeOptions(),
     ]);
-
 
   if (!user) {
     notFound();
   }
-
 
   const displayName =
     user.display_name ??
@@ -203,59 +187,56 @@ export default async function UserDetailPage({
     user.email ??
     "User";
 
-
   const activeAssignments =
     assignments.filter(
       (assignment) =>
-        assignment.is_active
+        assignment.is_active,
     );
-
 
   const profileContent = (
     <UserProfileForm
-      user={
-        user
-      }
-      jobs={
-        jobs
-      }
+      user={user}
+      jobs={jobs}
       organizations={
         organizations
+      }
+      canEditPersonal={
+        capabilities.can_edit_personal
+      }
+      canEditOrganization={
+        capabilities.can_edit_organization
+      }
+      canEditContact={
+        capabilities.can_edit_contact
       }
     />
   );
 
-
   const accessContent = (
-    <div className="py-6">
-
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-
+    <div className="og-user-detail-section">
+      <div className="og-user-detail-section-header">
         <div>
-          <h3 className="og-text text-[13px] font-semibold">
+          <h3>
             Access & Role
           </h3>
 
-          <p className="og-muted mt-1 text-[9px]">
-            Kelola role, operational scope, dan masa berlaku akses pengguna.
+          <p>
+            Kelola role, operational scope,
+            primary assignment, dan masa
+            berlaku akses pengguna.
           </p>
         </div>
 
-
-        <UserAssignmentModal
-          userId={
-            user.user_id
-          }
-          roles={
-            roles
-          }
-          scopes={
-            scopes
-          }
-        />
-
+        {capabilities.can_add_role ? (
+          <UserAssignmentModal
+                    userId={
+                      user.user_id
+                    }
+                    roles={roles}
+                    scopes={scopes}
+                  />
+        ) : null}
       </div>
-
 
       <UserAssignmentList
         userId={
@@ -263,99 +244,78 @@ export default async function UserDetailPage({
         }
         assignments={
           assignments
+        }        canDeactivate={
+          capabilities.can_deactivate_assignment
+        }
+        canDelete={
+          capabilities.can_delete_assignment
         }
       />
-
     </div>
   );
-
 
   const statusContent = (
-    <div className="py-6">
-
-      <UserStatusForm
-        userId={
-          user.user_id
+    <UserStatusForm
+      userId={
+        user.user_id
+      }
+      statusCode={
+        user.status_code
+      }
+      email={
+        user.email
+      }
+      message={
+        query.message ??
+        null
+      }
+      messageStatus={
+        query.status ??
+        null
+      }        canChangeStatus={
+          capabilities.can_change_status
         }
-        statusCode={
-          user.status_code
-        }
-        email={
-          user.email
-        }
-        message={
-          query.message ??
-          null
-        }
-        messageStatus={
-          query.status ??
-          null
+        canPasswordRecovery={
+          capabilities.can_password_recovery
         }
       />
-
-    </div>
   );
 
-
   return (
-    <div className="space-y-4">
-
+    <div className="og-user-detail-page">
       <ActionResultModal />
 
       <Link
         href="/admin/users"
         prefetch
-        className="og-secondary inline-flex items-center gap-2 text-[10px] font-medium hover:text-[var(--og-cyan-strong)]"
+        className="og-user-detail-back"
       >
         <ArrowLeft
-          size={14}
-          strokeWidth={1.8}
+          size={15}
+          strokeWidth={1.9}
         />
 
         User Management
       </Link>
 
-
-      {/* =====================================================
-          USER HEADER
-         ===================================================== */}
-
-      <Panel
-        variant="raised"
-        padding="lg"
-      >
-
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
-
-          <div
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[15px] text-[14px] font-semibold"
-            style={{
-              color:
-                "#eafaff",
-
-              background:
-                "linear-gradient(145deg,#17364f,#0f263b)",
-            }}
-          >
+      <section className="og-user-detail-hero">
+        <div className="og-user-detail-hero-main">
+          <div className="og-user-detail-avatar">
             {initials(
-              displayName
+              displayName,
             )}
           </div>
 
-
-          <div className="min-w-0 flex-1">
-
-            <div className="flex flex-wrap items-center gap-2">
-
-              <h2 className="og-text truncate text-[18px] font-semibold tracking-[-0.02em]">
+          <div className="og-user-detail-identity">
+            <div className="og-user-detail-name-row">
+              <h1>
                 {displayName}
-              </h2>
-
+              </h1>
 
               <Badge
                 variant={
                   statusVariant(
-                    user.status_code
+                    user.status_code,
                   )
                 }
                 dot
@@ -363,99 +323,96 @@ export default async function UserDetailPage({
                 {user.status_code ??
                   "UNKNOWN"}
               </Badge>
-
             </div>
 
-
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
-
-              <span className="og-muted flex items-center gap-1.5 text-[9px]">
+            <div className="og-user-detail-meta">
+              <span>
                 <Mail
-                  size={12}
+                  size={13}
+                  strokeWidth={1.8}
                 />
 
                 {user.email ??
                   "-"}
               </span>
 
-
-              <span className="og-muted flex items-center gap-1.5 text-[9px]">
+              <span>
                 <BriefcaseBusiness
-                  size={12}
+                  size={13}
+                  strokeWidth={1.8}
                 />
 
                 {user.job_name ??
                   "Tanpa Jabatan"}
               </span>
 
-
-              <span className="og-muted flex items-center gap-1.5 text-[9px]">
+              <span>
                 <Building2
-                  size={12}
+                  size={13}
+                  strokeWidth={1.8}
                 />
 
                 {user.organization_name ??
                   "Organization belum ditentukan"}
               </span>
 
-
-              <span className="og-muted flex items-center gap-1.5 text-[9px]">
+              <span>
                 <AtSign
-                  size={12}
+                  size={13}
+                  strokeWidth={1.8}
                 />
 
                 {user.telegram_username
                   ? `@${user.telegram_username}`
                   : "-"}
               </span>
-
             </div>
-
           </div>
-
-
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-
-            <Badge
-              variant="neutral"
-            >
-              {user.user_type_code ??
-                "UNKNOWN"}
-            </Badge>
-
-
-            {user.organization_type && (
-              <Badge
-                variant="info"
-              >
-                {user.organization_type}
-              </Badge>
-            )}
-
-
-            <Badge
-              variant="info"
-            >
-              {activeAssignments.length} Active Role
-            </Badge>
-
-          </div>
-
         </div>
 
-      </Panel>
+        <div className="og-user-detail-hero-summary">
+          <div className="og-user-detail-summary-item">
+            <span>
+              User Relationship
+            </span>
 
+            <strong>
+              {user.user_type_code ??
+                "UNKNOWN"}
+            </strong>
+          </div>
 
-      {/* =====================================================
-          INSTANT CLIENT TABS
-         ===================================================== */}
+          <div className="og-user-detail-summary-item">
+            <span>
+              Organization Type
+            </span>
 
-      <Panel
-        variant="raised"
-        padding="none"
-        className="overflow-visible"
-      >
+            <strong>
+              {user.organization_type ??
+                "—"}
+            </strong>
+          </div>
 
+          <div className="og-user-detail-summary-item">
+            <span>
+              Active Roles
+            </span>
+
+            <strong>
+              <ShieldCheck
+                size={14}
+                strokeWidth={1.9}
+              />
+
+              {
+                activeAssignments.length
+              }
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="og-user-detail-workspace">
         <UserDetailTabs
           initialTab={
             initialTab
@@ -473,9 +430,7 @@ export default async function UserDetailPage({
             statusContent
           }
         />
-
-      </Panel>
-
+      </section>
     </div>
   );
 }

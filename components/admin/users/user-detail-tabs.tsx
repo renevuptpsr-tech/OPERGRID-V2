@@ -14,31 +14,44 @@ import {
   useState,
 } from "react";
 
-
 type UserDetailTab =
   | "profile"
   | "access"
   | "status";
 
-
 type UserDetailTabsProps = {
-  initialTab: UserDetailTab;
-  assignmentCount: number;
+  initialTab:
+    UserDetailTab;
 
-  profileContent: ReactNode;
-  accessContent: ReactNode;
-  statusContent: ReactNode;
+  assignmentCount:
+    number;
+
+  profileContent:
+    ReactNode;
+
+  accessContent:
+    ReactNode;
+
+  statusContent:
+    ReactNode;
 };
-
 
 type TabButtonProps = {
-  active: boolean;
-  label: string;
-  count?: number;
-  icon: ReactNode;
-  onClick: () => void;
-};
+  active:
+    boolean;
 
+  label:
+    string;
+
+  count?:
+    number;
+
+  icon:
+    ReactNode;
+
+  onClick:
+    () => void;
+};
 
 function TabButton({
   active,
@@ -50,17 +63,19 @@ function TabButton({
   return (
     <button
       type="button"
+      className="og-user-detail-tab"
+      data-active={
+        active ||
+        undefined
+      }
+      aria-pressed={
+        active
+      }
       onClick={
         onClick
       }
-      className={[
-        "og-workflow-tab",
-        active
-          ? "og-workflow-tab-active"
-          : "",
-      ].join(" ")}
     >
-      <span>
+      <span className="og-user-detail-tab-icon">
         {icon}
       </span>
 
@@ -69,22 +84,14 @@ function TabButton({
       </span>
 
       {typeof count ===
-        "number" && (
-        <span
-          className={[
-            "og-workflow-tab-count",
-            active
-              ? "og-workflow-tab-count-active"
-              : "",
-          ].join(" ")}
-        >
+      "number" ? (
+        <span className="og-user-detail-tab-count">
           {count}
         </span>
-      )}
+      ) : null}
     </button>
   );
 }
-
 
 export function UserDetailTabs({
   initialTab,
@@ -98,131 +105,113 @@ export function UserDetailTabs({
     setActiveTab,
   ] =
     useState<UserDetailTab>(
-      initialTab
+      initialTab,
     );
-
 
   function changeTab(
-    nextTab: UserDetailTab
+    nextTab:
+      UserDetailTab,
   ) {
     setActiveTab(
-      nextTab
+      nextTab,
     );
-
 
     const url =
       new URL(
-        window.location.href
+        window.location.href,
       );
 
     url.searchParams.set(
       "tab",
-      nextTab
+      nextTab,
     );
 
     url.searchParams.delete(
-      "message"
+      "message",
     );
 
     url.searchParams.delete(
-      "status"
+      "status",
     );
-
 
     window.history.replaceState(
       window.history.state,
       "",
-      url.toString()
+      url.toString(),
     );
   }
 
-
   return (
     <>
+      <div className="og-user-detail-tabs-bar">
+        <div
+          className="og-user-detail-tabs"
+          role="tablist"
+          aria-label="User detail sections"
+        >
+          <TabButton
+            active={
+              activeTab ===
+              "profile"
+            }
+            label="Profile"
+            icon={
+              <UserRound
+                size={15}
+                strokeWidth={1.9}
+              />
+            }
+            onClick={() =>
+              changeTab(
+                "profile",
+              )
+            }
+          />
 
-      <div className="px-5 pt-3 lg:px-6">
+          <TabButton
+            active={
+              activeTab ===
+              "access"
+            }
+            label="Access & Role"
+            count={
+              assignmentCount
+            }
+            icon={
+              <KeyRound
+                size={15}
+                strokeWidth={1.9}
+              />
+            }
+            onClick={() =>
+              changeTab(
+                "access",
+              )
+            }
+          />
 
-        <div className="og-workflow-tabs overflow-x-auto">
-
-          <div className="flex min-w-max items-center gap-1">
-
-            <TabButton
-              active={
-                activeTab ===
-                "profile"
-              }
-              label="Profile"
-              icon={
-                <UserRound
-                  size={14}
-                  strokeWidth={1.8}
-                />
-              }
-              onClick={() =>
-                changeTab(
-                  "profile"
-                )
-              }
-            />
-
-
-            <TabButton
-              active={
-                activeTab ===
-                "access"
-              }
-              label="Access & Role"
-              count={
-                assignmentCount
-              }
-              icon={
-                <KeyRound
-                  size={14}
-                  strokeWidth={1.8}
-                />
-              }
-              onClick={() =>
-                changeTab(
-                  "access"
-                )
-              }
-            />
-
-
-            <TabButton
-              active={
-                activeTab ===
-                "status"
-              }
-              label="Account Status"
-              icon={
-                <ShieldCheck
-                  size={14}
-                  strokeWidth={1.8}
-                />
-              }
-              onClick={() =>
-                changeTab(
-                  "status"
-                )
-              }
-            />
-
-          </div>
-
+          <TabButton
+            active={
+              activeTab ===
+              "status"
+            }
+            label="Account Status"
+            icon={
+              <ShieldCheck
+                size={15}
+                strokeWidth={1.9}
+              />
+            }
+            onClick={() =>
+              changeTab(
+                "status",
+              )
+            }
+          />
         </div>
-
       </div>
 
-
-      <div
-        className="border-t px-5 lg:px-6"
-        style={{
-          borderColor:
-            "var(--og-border-soft)",
-        }}
-      >
-
+      <div className="og-user-detail-tab-content">
         <div
           hidden={
             activeTab !==
@@ -231,7 +220,6 @@ export function UserDetailTabs({
         >
           {profileContent}
         </div>
-
 
         <div
           hidden={
@@ -242,7 +230,6 @@ export function UserDetailTabs({
           {accessContent}
         </div>
 
-
         <div
           hidden={
             activeTab !==
@@ -251,9 +238,7 @@ export function UserDetailTabs({
         >
           {statusContent}
         </div>
-
       </div>
-
     </>
   );
 }

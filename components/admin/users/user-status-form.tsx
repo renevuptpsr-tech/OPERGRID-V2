@@ -1,16 +1,26 @@
+"use client";
+
 import {
   CircleCheck,
   CirclePause,
+  KeyRound,
   MailCheck,
   ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
+
+import {
+  useState,
+} from "react";
 
 import {
   Badge,
   FormField,
-  Panel,
-  SubmitButton,
 } from "@/components/ui";
+
+import {
+  ConfirmedServerAction,
+} from "@/components/ui/confirmed-server-action";
 
 import {
   setUserStatusAction,
@@ -20,9 +30,10 @@ import {
   sendPasswordResetAction,
 } from "@/app/(platform)/admin/users/[user_id]/security-actions";
 
-
 type UserStatusFormProps = {
-  userId: string;
+
+  userId:
+    string;
 
   statusCode:
     | string
@@ -39,8 +50,48 @@ type UserStatusFormProps = {
   messageStatus:
     | string
     | null;
+
+  canChangeStatus:
+    boolean;
+
+  canPasswordRecovery:
+    boolean;
 };
 
+function statusLabel(
+  value:
+    string,
+) {
+  if (
+    value ===
+    "ACTIVE"
+  ) {
+    return "Active";
+  }
+
+  if (
+    value ===
+    "INACTIVE"
+  ) {
+    return "Inactive";
+  }
+
+  if (
+    value ===
+    "SUSPENDED"
+  ) {
+    return "Suspended";
+  }
+
+  if (
+    value ===
+    "PENDING"
+  ) {
+    return "Pending";
+  }
+
+  return value;
+}
 
 export function UserStatusForm({
   userId,
@@ -48,137 +99,122 @@ export function UserStatusForm({
   email,
   message,
   messageStatus,
+  canChangeStatus,
+  canPasswordRecovery,
 }: UserStatusFormProps) {
-  const active =
-    statusCode ===
+  const currentStatus =
+    statusCode ??
     "ACTIVE";
 
+  const [
+    selectedStatus,
+    setSelectedStatus,
+  ] =
+    useState(
+      currentStatus,
+    );
+
+  const active =
+    currentStatus ===
+    "ACTIVE";
+
+  const statusChanged =
+    selectedStatus !==
+    currentStatus;
 
   return (
-    <div className="space-y-7">
-
-      {message && (
-        <Panel
-          variant="soft"
-          padding="md"
-          className={
+    <div className="og-user-status">
+      {message ? (
+        <div
+          className="og-user-status-message"
+          data-variant={
             messageStatus ===
             "success"
-              ? "border-[var(--og-success)]"
-              : "border-[var(--og-danger)]"
+              ? "success"
+              : "danger"
           }
         >
-          <div className="flex items-start gap-3">
+          <div className="og-user-status-message-icon">
+            <MailCheck
+              size={16}
+              strokeWidth={1.9}
+            />
+          </div>
 
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px]"
-              style={{
-                color:
-                  messageStatus ===
-                  "success"
-                    ? "var(--og-success)"
-                    : "var(--og-danger)",
+          <div>
+            <strong>
+              {messageStatus ===
+              "success"
+                ? "Success"
+                : "Action Failed"}
+            </strong>
 
-                background:
-                  messageStatus ===
-                  "success"
-                    ? "var(--og-success-soft)"
-                    : "var(--og-danger-soft)",
-              }}
-            >
-              <MailCheck
-                size={15}
-                strokeWidth={1.8}
+            <p>
+              {message}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="og-account-control-grid">
+        <section className="og-account-control-panel">
+          <header className="og-account-control-header">
+            <div className="og-account-control-heading-icon">
+              <ShieldCheck
+                size={17}
+                strokeWidth={1.9}
               />
             </div>
 
             <div>
-              <div className="og-text text-[10px] font-semibold">
-                {messageStatus ===
-                "success"
-                  ? "Success"
-                  : "Action Failed"}
-              </div>
+              <span className="og-account-control-eyebrow">
+                Account Control
+              </span>
 
-              <div className="og-muted mt-0.5 text-[9px]">
-                {message}
-              </div>
+              <h3>
+                Account Status
+              </h3>
+
+              <p>
+                Atur availability akun untuk
+                mengakses OPERGRID tanpa mengubah
+                role dan operational scope.
+              </p>
             </div>
+          </header>
 
-          </div>
-        </Panel>
-      )}
-
-
-      {/* ===================================================
-          ACCOUNT STATUS
-         =================================================== */}
-
-      <section>
-
-        <div className="mb-4">
-          <h3 className="og-text text-[13px] font-semibold">
-            Account Status
-          </h3>
-
-          <p className="og-muted mt-1 text-[9px] leading-4">
-            Status akun menentukan apakah pengguna dapat mengakses OPERGRID.
-          </p>
-        </div>
-
-
-        <div
-          className="rounded-[14px] border p-5"
-          style={{
-            background:
-              active
-                ? "var(--og-success-soft)"
-                : "var(--og-surface-soft)",
-
-            borderColor:
-              active
-                ? "color-mix(in srgb, var(--og-success) 24%, transparent)"
-                : "var(--og-border-soft)",
-          }}
-        >
-
-          <div className="flex items-start gap-3">
-
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]"
-              style={{
-                color:
-                  active
-                    ? "var(--og-success)"
-                    : "var(--og-warning)",
-
-                background:
-                  active
-                    ? "var(--og-success-soft)"
-                    : "var(--og-warning-soft)",
-              }}
-            >
+          <div
+            className="og-user-account-state"
+            data-active={
+              active ||
+              undefined
+            }
+          >
+            <div className="og-user-account-state-icon">
               {active ? (
                 <CircleCheck
-                  size={18}
-                  strokeWidth={1.8}
+                  size={20}
+                  strokeWidth={1.9}
                 />
               ) : (
                 <CirclePause
-                  size={18}
-                  strokeWidth={1.8}
+                  size={20}
+                  strokeWidth={1.9}
                 />
               )}
             </div>
 
+            <div className="og-user-account-state-copy">
+              <span className="og-account-state-label">
+                Current Status
+              </span>
 
-            <div>
-
-              <div className="flex flex-wrap items-center gap-2">
-
-                <span className="og-text text-[11px] font-semibold">
-                  Current Status
-                </span>
+              <div className="og-user-account-state-title">
+                <strong>
+                  {active
+                    ? "Account Operational"
+                    : "Account Restricted"}
+                </strong>
 
                 <Badge
                   variant={
@@ -188,208 +224,260 @@ export function UserStatusForm({
                   }
                   dot
                 >
-                  {statusCode ??
-                    "UNKNOWN"}
+                  {currentStatus}
                 </Badge>
-
               </div>
 
-
-              <p className="og-muted mt-1.5 text-[9px] leading-4">
+              <p>
                 {active
                   ? "User dapat mengakses OPERGRID sesuai role dan operational scope yang dimiliki."
                   : "Akses pengguna dibatasi berdasarkan status akun saat ini."}
               </p>
-
             </div>
-
           </div>
 
-        </div>
+          <div className="og-account-status-mutation">
+            <div className="og-account-status-mutation-heading">
+              <strong>
+                Change Account Status
+              </strong>
 
+              <span>
+                {canChangeStatus
+                  ? "Perubahan status tidak menghapus role assignment pengguna."
+                  : "Account Status bersifat read-only. Perubahan memerlukan ADMIN atau SUPER_ADMIN."}
+              </span>
+            </div>
 
-        <form
-          action={
-            setUserStatusAction
-          }
-          className="mt-4 max-w-[500px] space-y-4"
-        >
+            <div className="og-account-status-inline-form">
+              <div className="og-account-status-field">
+                <FormField label="New Status">
+                  <select
+                    name="status_code"
+                    disabled={!canChangeStatus}
+                    value={
+                      selectedStatus
+                    }
+                    onChange={(
+                      event,
+                    ) =>
+                      setSelectedStatus(
+                        event.target.value,
+                      )
+                    }
+                    className="og-ui-select og-premium-form-control"
+                  >
+                    <option value="ACTIVE">
+                      Active
+                    </option>
 
-          <input
-            type="hidden"
-            name="user_id"
-            value={
-              userId
-            }
-          />
+                    <option value="INACTIVE">
+                      Inactive
+                    </option>
 
+                    <option value="SUSPENDED">
+                      Suspended
+                    </option>
 
-          <FormField
-            label="Change Account Status"
-            helper="Perubahan status tidak menghapus role assignment user."
-          >
-            <select
-              name="status_code"
-              defaultValue={
-                statusCode ??
-                "ACTIVE"
-              }
-              className="og-ui-select h-10 w-full rounded-[10px] px-3 text-[11px] outline-none"
-            >
-              <option value="ACTIVE">
-                Active
-              </option>
+                    <option value="PENDING">
+                      Pending
+                    </option>
+                  </select>
+                </FormField>
+              </div>
 
-              <option value="INACTIVE">
-                Inactive
-              </option>
+              <ConfirmedServerAction
+                action={
+                  setUserStatusAction
+                }
+                fields={{
+                  user_id:
+                    userId,
 
-              <option value="SUSPENDED">
-                Suspended
-              </option>
+                  status_code:
+                    selectedStatus,
+                }}
+                triggerLabel="Update Status"
+                confirmTitle="Confirm Account Status Change"
+                confirmDescription={
+                  <>
+                    Status akun akan diubah dari{" "}
+                    <strong>
+                      {statusLabel(
+                        currentStatus,
+                      )}
+                    </strong>{" "}
+                    menjadi{" "}
+                    <strong>
+                      {statusLabel(
+                        selectedStatus,
+                      )}
+                    </strong>
+                    .
+                  </>
+                }
+                confirmLabel="Confirm Update"
+                triggerVariant={
+                  selectedStatus ===
+                    "SUSPENDED" ||
+                  selectedStatus ===
+                    "INACTIVE"
+                    ? "danger"
+                    : "secondary"
+                }
+                triggerIcon={
+                  <ShieldAlert
+                    size={14}
+                    strokeWidth={1.9}
+                  />
+                }
+                disabled={
+                  !canChangeStatus ||
+                  !statusChanged
+                }
+                className="og-account-status-update-button"
+              >
+                <div className="og-sensitive-action-summary">
+                  <span>
+                    Current
+                    <strong>
+                      {statusLabel(
+                        currentStatus,
+                      )}
+                    </strong>
+                  </span>
 
-              <option value="PENDING">
-                Pending
-              </option>
-            </select>
-          </FormField>
+                  <span>
+                    New Status
+                    <strong>
+                      {statusLabel(
+                        selectedStatus,
+                      )}
+                    </strong>
+                  </span>
+                </div>
 
+                <p className="og-sensitive-action-note">
+                  Role dan operational scope tetap tersimpan.
+                  Namun akses user dapat langsung berubah setelah
+                  status akun diperbarui.
+                </p>
+              </ConfirmedServerAction>
+            </div>
+          </div>
+        </section>
 
-          <SubmitButton
-            variant="secondary"
-            pendingText="Updating..."
-            leftIcon={
-              <ShieldAlert
-                size={14}
-                strokeWidth={1.8}
+        <aside className="og-account-security-panel">
+          <header className="og-account-security-header">
+            <div className="og-account-security-heading-icon">
+              <KeyRound
+                size={17}
+                strokeWidth={1.9}
               />
-            }
-          >
-            Update Account Status
-          </SubmitButton>
+            </div>
 
-        </form>
+            <div>
+              <span className="og-account-control-eyebrow">
+                Security
+              </span>
 
-      </section>
+              <h3>
+                Password Recovery
+              </h3>
 
+              <p>
+                {canPasswordRecovery
+                  ? "Kirim secure recovery link agar pengguna dapat membuat password baru."
+                  : "Password Recovery user lain bersifat read-only untuk viewer ini."}
+              </p>
+            </div>
+          </header>
 
-      <div
-        className="h-px"
-        style={{
-          background:
-            "var(--og-border-soft)",
-        }}
-      />
-
-
-      {/* ===================================================
-          PASSWORD RECOVERY
-         =================================================== */}
-
-      <section>
-
-        <div className="mb-4">
-          <h3 className="og-text text-[13px] font-semibold">
-            Password Recovery
-          </h3>
-
-          <p className="og-muted mt-1 max-w-[650px] text-[9px] leading-4">
-            OPERGRID tidak menampilkan atau mengubah password pengguna secara langsung. Kirim secure reset link agar pengguna membuat password baru melalui email.
-          </p>
-        </div>
-
-
-        <Panel
-          variant="soft"
-          padding="lg"
-          className="max-w-[720px]"
-        >
-
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]"
-              style={{
-                color:
-                  "var(--og-cyan-strong)",
-
-                background:
-                  "var(--og-cyan-soft)",
-              }}
-            >
+          <div className="og-account-security-email">
+            <div className="og-account-security-email-icon">
               <MailCheck
                 size={17}
-                strokeWidth={1.8}
+                strokeWidth={1.9}
               />
             </div>
 
-
-            <div className="min-w-0 flex-1">
-
-              <div className="og-muted text-[8px] font-semibold uppercase tracking-[0.10em]">
+            <div>
+              <span>
                 Authentication Email
-              </div>
+              </span>
 
-              <div className="og-text mt-1 truncate text-[11px] font-medium">
+              <strong>
                 {email ??
                   "Email tidak tersedia"}
-              </div>
-
+              </strong>
             </div>
+          </div>
 
+          <div className="og-account-security-note">
+            <ShieldCheck
+              size={14}
+              strokeWidth={1.8}
+            />
 
-            {email ? (
-              <form
+            <p>
+              OPERGRID tidak menampilkan atau
+              mengubah password user secara langsung.
+            </p>
+          </div>
+
+          {email && canPasswordRecovery ? (
+            <div className="og-account-security-action">
+              <ConfirmedServerAction
                 action={
                   sendPasswordResetAction
                 }
+                fields={{
+                  user_id:
+                    userId,
+
+                  email,
+                }}
+                triggerLabel="Send Reset Password Link"
+                confirmTitle="Send Password Reset Link?"
+                confirmDescription={
+                  <>
+                    Secure password reset link akan dikirim ke{" "}
+                    <strong>
+                      {email}
+                    </strong>
+                    .
+                  </>
+                }
+                confirmLabel="Send Reset Link"
+                triggerVariant="secondary"
+                triggerIcon={
+                  <MailCheck
+                    size={14}
+                    strokeWidth={1.9}
+                  />
+                }
+                className="og-account-security-button"
               >
-
-                <input
-                  type="hidden"
-                  name="user_id"
-                  value={
-                    userId
-                  }
-                />
-
-                <input
-                  type="hidden"
-                  name="email"
-                  value={
-                    email
-                  }
-                />
-
-
-                <SubmitButton
-                  variant="secondary"
-                  pendingText="Sending..."
-                  leftIcon={
-                    <MailCheck
-                      size={14}
-                      strokeWidth={1.8}
-                    />
-                  }
-                >
-                  Send Reset Password Link
-                </SubmitButton>
-
-              </form>
-            ) : (
-              <Badge
-                variant="warning"
-              >
-                Email unavailable
+                <p className="og-sensitive-action-note">
+                  Pengguna akan menerima email untuk membuat
+                  password baru. Password lama tidak ditampilkan
+                  atau dikirim oleh OPERGRID.
+                </p>
+              </ConfirmedServerAction>
+            </div>
+          ) : !email ? (
+            <Badge variant="warning">
+              Email unavailable
+            </Badge>
+          ) : (
+            <div className="og-account-security-action">
+              <Badge variant="neutral">
+                Read only
               </Badge>
-            )}
-
-          </div>
-
-        </Panel>
-
-      </section>
-
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

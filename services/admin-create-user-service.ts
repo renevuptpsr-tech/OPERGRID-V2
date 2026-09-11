@@ -10,8 +10,6 @@ import {
 
 import {
   assignAdminUserRole,
-  setAdminUserStatus,
-  updateAdminUserProfile,
 } from "@/services/admin-user-detail-service";
 
 
@@ -90,15 +88,13 @@ async function assertCanCreateUser() {
   const supabase =
     await createClient();
 
-
   const {
     data,
     error,
   } =
     await supabase.rpc(
-      "opg_fn_is_super_admin"
+      "opg_fn_is_admin_or_super_admin"
     );
-
 
   if (error) {
     throw new Error(
@@ -106,10 +102,73 @@ async function assertCanCreateUser() {
     );
   }
 
-
   if (!data) {
     throw new Error(
-      "Hanya Super Administrator yang dapat membuat atau memprovision user."
+      "Hanya Administrator atau Super Administrator yang dapat membuat atau memprovision user."
+    );
+  }
+}
+
+
+async function provisionInitialUserProfile(
+  input:
+    CreateOpergridUserInput,
+  userId:
+    string
+) {
+  const supabase =
+    await createClient();
+
+  const {
+    error,
+  } =
+    await supabase.rpc(
+      "opg_user_management_provision_profile",
+      {
+        p_user_id:
+          userId,
+
+        p_employee_id:
+          input.employeeId ?? "",
+
+        p_full_name:
+          input.fullName,
+
+        p_display_name:
+          input.displayName ??
+          undefined,
+
+        p_job_id:
+          input.jobId ??
+          undefined,
+
+        p_organization_id:
+          input.organizationId ??
+          undefined,
+
+        p_user_type_code:
+          input.userTypeCode,
+
+        p_phone_number:
+          input.phoneNumber ??
+          undefined,
+
+        p_telegram_username:
+          input.telegramUsername ??
+          undefined,
+
+        p_telegram_user_id:
+          input.telegramUserId ??
+          undefined,
+
+        p_status_code:
+          input.statusCode,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
     );
   }
 }
@@ -127,7 +186,6 @@ function validateAssignments(
         assignment.isPrimary
     ).length;
 
-
   if (
     primaryCount >
     1
@@ -137,12 +195,10 @@ function validateAssignments(
     );
   }
 
-
   for (
     const assignment
     of assignments
   ) {
-
     if (
       !assignment.roleCode.trim()
     ) {
@@ -150,7 +206,6 @@ function validateAssignments(
         "Role pada Initial Access wajib dipilih."
       );
     }
-
 
     if (
       assignment.validFrom &&
@@ -172,25 +227,20 @@ export async function createOpergridUser(
 ) {
   await assertCanCreateUser();
 
-
   validateAssignments(
     input.assignments
   );
 
-
   const admin =
     createAdminClient();
-
 
   let userId:
     | string
     | null =
     null;
 
-
   let authUserCreatedByThisOperation =
     false;
-
 
   try {
 
@@ -201,7 +251,6 @@ export async function createOpergridUser(
     if (
       input.existingAuthUserId
     ) {
-
       const {
         data,
         error,
@@ -210,7 +259,6 @@ export async function createOpergridUser(
           .getUserById(
             input.existingAuthUserId
           );
-
 
       if (
         error ||
@@ -222,12 +270,10 @@ export async function createOpergridUser(
         );
       }
 
-
       const existingEmail =
         data.user.email
           ?.trim()
           .toLowerCase();
-
 
       if (
         existingEmail !==
@@ -240,13 +286,12 @@ export async function createOpergridUser(
         );
       }
 
-
       userId =
         data.user.id;
 
-
       /*
-       * Do not provision twice.
+       * Existing Auth account may only be provisioned
+       * when it does not yet have an OPERGRID profile.
        */
       const {
         data: existingProfile,
@@ -265,13 +310,11 @@ export async function createOpergridUser(
           )
           .maybeSingle();
 
-
       if (profileCheckError) {
         throw new Error(
           profileCheckError.message
         );
       }
-
 
       if (existingProfile) {
         throw new Error(
@@ -303,7 +346,6 @@ export async function createOpergridUser(
             },
           });
 
-
       if (
         error ||
         !data.user
@@ -314,10 +356,8 @@ export async function createOpergridUser(
         );
       }
 
-
       userId =
         data.user.id;
-
 
       authUserCreatedByThisOperation =
         true;
@@ -325,58 +365,17 @@ export async function createOpergridUser(
 
 
     /* =====================================================
-       2. OPERGRID PROFILE
+       2. INITIAL OPERGRID PROFILE
        ===================================================== */
 
-    await updateAdminUserProfile({
-      userId,
-
-      employeeId:
-        input.employeeId,
-
-      fullName:
-        input.fullName,
-
-      displayName:
-        input.displayName,
-
-      jobId:
-        input.jobId,
-
-      organizationId:
-        input.organizationId,
-
-      userTypeCode:
-        input.userTypeCode,
-
-      phoneNumber:
-        input.phoneNumber,
-
-      telegramUsername:
-        input.telegramUsername,
-
-      telegramUserId:
-        input.telegramUserId,
-    });
+    await provisionInitialUserProfile(
+      input,
+      userId
+    );
 
 
     /* =====================================================
-       3. PROFILE STATUS
-       ===================================================== */
-
-    if (
-      input.statusCode !==
-      "ACTIVE"
-    ) {
-      await setAdminUserStatus(
-        userId,
-        input.statusCode
-      );
-    }
-
-
-    /* =====================================================
-       4. MULTIPLE INITIAL ACCESS
+       3. MULTIPLE INITIAL ACCESS
        ===================================================== */
 
     for (
@@ -411,34 +410,31 @@ export async function createOpergridUser(
 
 
     /* =====================================================
-       5. PASSWORD SETUP
-       Only for NEW auth accounts.
+       4. PASSWORD SETUP
+
+       Only for NEW Auth accounts.
+
        Existing Auth users keep their existing credentials.
        ===================================================== */
 
     let passwordEmailSent =
       false;
 
-
     let passwordEmailError:
       string |
       null =
       null;
 
-
     if (
       authUserCreatedByThisOperation
     ) {
-
       const supabase =
         await createClient();
-
 
       const siteUrl =
         process.env
           .NEXT_PUBLIC_SITE_URL ??
         "http://localhost:3000";
-
 
       const {
         error,
@@ -452,10 +448,8 @@ export async function createOpergridUser(
             }
           );
 
-
       passwordEmailSent =
         !error;
-
 
       passwordEmailError =
         error?.message ??
@@ -477,19 +471,17 @@ export async function createOpergridUser(
   } catch (error) {
 
     /*
-     * Critical rule:
+     * Critical safety rule:
      *
-     * Delete Auth user ONLY when it was created
-     * by this Create User operation.
+     * Delete Auth user ONLY when this operation created it.
      *
-     * Existing Auth accounts must NEVER be deleted
-     * when provisioning fails.
+     * Existing Auth accounts must NEVER be deleted when
+     * provisioning fails.
      */
     if (
       userId &&
       authUserCreatedByThisOperation
     ) {
-
       try {
         await admin.auth.admin
           .deleteUser(
@@ -501,7 +493,6 @@ export async function createOpergridUser(
          */
       }
     }
-
 
     throw error;
   }

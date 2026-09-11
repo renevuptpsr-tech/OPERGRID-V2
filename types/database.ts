@@ -2099,6 +2099,7 @@ export type Database = {
           avatar_path: string | null
           created_at: string
           created_by: string | null
+          default_functloc_id: string | null
           display_name: string | null
           employee_id: string | null
           full_name: string
@@ -2117,6 +2118,7 @@ export type Database = {
           avatar_path?: string | null
           created_at?: string
           created_by?: string | null
+          default_functloc_id?: string | null
           display_name?: string | null
           employee_id?: string | null
           full_name: string
@@ -2135,6 +2137,7 @@ export type Database = {
           avatar_path?: string | null
           created_at?: string
           created_by?: string | null
+          default_functloc_id?: string | null
           display_name?: string | null
           employee_id?: string | null
           full_name?: string
@@ -2150,6 +2153,167 @@ export type Database = {
           user_type_code?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "mst_functloc"
+            referencedColumns: ["functloc_id"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_bay"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_bay"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_bay"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_gi"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_gi"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_dropdown_ultg"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_master_lokasi"
+            referencedColumns: ["IdFunctloc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_thermovisi_eligible_bay"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_thermovisi_eligible_bay"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "v_thermovisi_eligible_bay"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang_detail"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang_detail"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_kejadian_penyulang_detail"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy"
+            referencedColumns: ["ultg_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy_accessible"
+            referencedColumns: ["bay_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy_accessible"
+            referencedColumns: ["gi_flc"]
+          },
+          {
+            foreignKeyName: "opg_user_profile_default_functloc_id_fkey"
+            columns: ["default_functloc_id"]
+            isOneToOne: false
+            referencedRelation: "vw_penyulang_hierarchy_accessible"
+            referencedColumns: ["ultg_flc"]
+          },
           {
             foreignKeyName: "opg_user_profile_job_id_fkey"
             columns: ["job_id"]
@@ -6333,6 +6497,7 @@ export type Database = {
           avatar_path: string | null
           created_at: string
           created_by: string | null
+          default_functloc_id: string | null
           display_name: string | null
           employee_id: string | null
           full_name: string
@@ -6373,6 +6538,7 @@ export type Database = {
           avatar_path: string | null
           created_at: string
           created_by: string | null
+          default_functloc_id: string | null
           display_name: string | null
           employee_id: string | null
           full_name: string
@@ -6480,6 +6646,11 @@ export type Database = {
           user_id: string
         }[]
       }
+      opg_fn_is_admin: { Args: { p_user_id?: string }; Returns: boolean }
+      opg_fn_is_admin_or_super_admin: {
+        Args: { p_user_id?: string }
+        Returns: boolean
+      }
       opg_fn_is_super_admin: { Args: { p_user_id?: string }; Returns: boolean }
       opg_fn_my_assignments: {
         Args: never
@@ -6567,6 +6738,29 @@ export type Database = {
         }
         Returns: string
       }
+      opg_fn_scope_descendants: {
+        Args: { p_scope_functloc_id: string }
+        Returns: {
+          depth: number
+          functloc_id: string
+          location_name: string
+          parent_scope_functloc_id: string
+          scope_level: string
+        }[]
+      }
+      opg_fn_scope_hierarchy: {
+        Args: never
+        Returns: {
+          functloc_id: string
+          gi_functloc_id: string
+          location_name: string
+          parent_scope_functloc_id: string
+          scope_level: string
+          sort_key: string
+          ultg_functloc_id: string
+          upt_functloc_id: string
+        }[]
+      }
       opg_fn_set_my_theme: {
         Args: { p_theme: string }
         Returns: {
@@ -6574,6 +6768,330 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      opg_fn_user_detail_assignments: {
+        Args: { p_include_inactive?: boolean; p_user_id: string }
+        Returns: {
+          assignment_id: string
+          created_at: string
+          include_children: boolean
+          is_active: boolean
+          is_primary: boolean
+          notes: string
+          role_code: string
+          role_id: string
+          role_name: string
+          role_scope_level: string
+          scope_functloc_id: string
+          scope_name: string
+          updated_at: string
+          valid_from: string
+          valid_until: string
+        }[]
+      }
+      opg_fn_user_detail_capabilities: {
+        Args: { p_target_user_id: string }
+        Returns: {
+          can_add_role: boolean
+          can_change_status: boolean
+          can_deactivate_assignment: boolean
+          can_delete_assignment: boolean
+          can_edit_contact: boolean
+          can_edit_organization: boolean
+          can_edit_personal: boolean
+          can_password_recovery: boolean
+          is_admin: boolean
+          is_self: boolean
+          is_super_admin: boolean
+          target_user_id: string
+          viewer_user_id: string
+        }[]
+      }
+      opg_fn_user_effective_scopes: {
+        Args: { p_user_id: string }
+        Returns: {
+          assigned_scope_functloc_id: string
+          assigned_scope_level: string
+          assigned_scope_name: string
+          assignment_id: string
+          depth: number
+          effective_scope_functloc_id: string
+          effective_scope_level: string
+          effective_scope_name: string
+          include_children: boolean
+          is_primary: boolean
+          role_code: string
+          role_id: string
+          role_name: string
+        }[]
+      }
+      opg_superadmin_force_delete_v2_user: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      opg_user_detail_assign_role: {
+        Args: {
+          p_include_children?: boolean
+          p_is_primary?: boolean
+          p_notes?: string
+          p_role_code: string
+          p_scope_functloc_id?: string
+          p_user_id: string
+          p_valid_from?: string
+          p_valid_until?: string
+        }
+        Returns: {
+          assignment_id: string
+          created_at: string
+          created_by: string | null
+          include_children: boolean
+          is_active: boolean
+          is_primary: boolean
+          notes: string | null
+          role_id: string
+          scope_functloc_id: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_role_assignment"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_detail_deactivate_assignment: {
+        Args: { p_assignment_id: string; p_notes?: string }
+        Returns: {
+          assignment_id: string
+          created_at: string
+          created_by: string | null
+          include_children: boolean
+          is_active: boolean
+          is_primary: boolean
+          notes: string | null
+          role_id: string
+          scope_functloc_id: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_role_assignment"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_detail_delete_assignment: {
+        Args: { p_assignment_id: string }
+        Returns: string
+      }
+      opg_user_detail_set_status: {
+        Args: { p_status_code: string; p_user_id: string }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          created_by: string | null
+          default_functloc_id: string | null
+          display_name: string | null
+          employee_id: string | null
+          full_name: string
+          job_id: string | null
+          organization_id: string | null
+          phone_number: string | null
+          status_code: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          user_type_code: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_profile"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_detail_update_contact: {
+        Args: {
+          p_phone_number?: string
+          p_telegram_user_id?: number
+          p_telegram_username?: string
+          p_user_id: string
+        }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          created_by: string | null
+          default_functloc_id: string | null
+          display_name: string | null
+          employee_id: string | null
+          full_name: string
+          job_id: string | null
+          organization_id: string | null
+          phone_number: string | null
+          status_code: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          user_type_code: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_profile"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_detail_update_organization: {
+        Args: {
+          p_organization_id?: string
+          p_user_id: string
+          p_user_type_code?: string
+        }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          created_by: string | null
+          default_functloc_id: string | null
+          display_name: string | null
+          employee_id: string | null
+          full_name: string
+          job_id: string | null
+          organization_id: string | null
+          phone_number: string | null
+          status_code: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          user_type_code: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_profile"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_detail_update_personal: {
+        Args: {
+          p_display_name?: string
+          p_employee_id: string
+          p_full_name: string
+          p_job_id?: string
+          p_user_id: string
+        }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          created_by: string | null
+          default_functloc_id: string | null
+          display_name: string | null
+          employee_id: string | null
+          full_name: string
+          job_id: string | null
+          organization_id: string | null
+          phone_number: string | null
+          status_code: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          user_type_code: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_profile"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_import_add_only_assignment: {
+        Args: {
+          p_include_children?: boolean
+          p_is_primary?: boolean
+          p_notes?: string
+          p_role_code: string
+          p_scope_functloc_id?: string
+          p_user_id: string
+          p_valid_from?: string
+          p_valid_until?: string
+        }
+        Returns: {
+          assignment_id: string
+          created_at: string
+          created_by: string | null
+          include_children: boolean
+          is_active: boolean
+          is_primary: boolean
+          notes: string | null
+          role_id: string
+          scope_functloc_id: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_role_assignment"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      opg_user_management_provision_profile: {
+        Args: {
+          p_display_name?: string
+          p_employee_id: string
+          p_full_name: string
+          p_job_id?: string
+          p_organization_id?: string
+          p_phone_number?: string
+          p_status_code?: string
+          p_telegram_user_id?: number
+          p_telegram_username?: string
+          p_user_id: string
+          p_user_type_code?: string
+        }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          created_by: string | null
+          default_functloc_id: string | null
+          display_name: string | null
+          employee_id: string | null
+          full_name: string
+          job_id: string | null
+          organization_id: string | null
+          phone_number: string | null
+          status_code: string
+          telegram_user_id: number | null
+          telegram_username: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          user_type_code: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "opg_user_profile"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {

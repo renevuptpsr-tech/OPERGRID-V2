@@ -10,8 +10,8 @@ import {
 } from "react";
 
 import {
-  Button,
   FormField,
+  SubmitButton,
 } from "@/components/ui";
 
 import type {
@@ -23,13 +23,16 @@ import {
   assignUserRoleAction,
 } from "@/app/(platform)/admin/users/[user_id]/actions";
 
-
 type UserAssignmentFormProps = {
-  userId: string;
-  roles: AdminRoleOption[];
-  scopes: AdminScopeOption[];
-};
+  userId:
+    string;
 
+  roles:
+    AdminRoleOption[];
+
+  scopes:
+    AdminScopeOption[];
+};
 
 export function UserAssignmentForm({
   userId,
@@ -38,12 +41,12 @@ export function UserAssignmentForm({
 }: UserAssignmentFormProps) {
   const [
     selectedRoleCode,
-    setSelectedRoleId,
-  ] = useState(
-    roles[0]?.role_code ??
-      ""
-  );
-
+    setSelectedRoleCode,
+  ] =
+    useState(
+      roles[0]?.role_code ??
+      "",
+    );
 
   const selectedRole =
     useMemo(
@@ -51,23 +54,21 @@ export function UserAssignmentForm({
         roles.find(
           (role) =>
             role.role_code ===
-            selectedRoleCode
+            selectedRoleCode,
         ) ??
         null,
       [
         roles,
         selectedRoleCode,
-      ]
+      ],
     );
-
 
   const requiresScope =
     Boolean(
       selectedRole &&
       selectedRole.scope_level !==
-        "GLOBAL"
+        "GLOBAL",
     );
-
 
   const filteredScopes =
     useMemo(
@@ -89,25 +90,23 @@ export function UserAssignmentForm({
         return scopes.filter(
           (scope) =>
             scope.scope_level ===
-            selectedRole.scope_level
+            selectedRole.scope_level,
         );
       },
       [
         selectedRole,
         requiresScope,
         scopes,
-      ]
+      ],
     );
-
 
   return (
     <form
       action={
         assignUserRoleAction
       }
-      className="space-y-5"
+      className="og-user-assignment-form"
     >
-
       <input
         type="hidden"
         name="user_id"
@@ -116,9 +115,7 @@ export function UserAssignmentForm({
         }
       />
 
-
-      <div className="grid gap-4 sm:grid-cols-2">
-
+      <div className="og-user-form-grid">
         <FormField
           label="Role"
           required
@@ -130,13 +127,13 @@ export function UserAssignmentForm({
               selectedRoleCode
             }
             onChange={(
-              event
+              event,
             ) =>
-              setSelectedRoleId(
-                event.target.value
+              setSelectedRoleCode(
+                event.target.value,
               )
             }
-            className="og-ui-select h-10 w-full rounded-[10px] px-3 text-[11px] outline-none"
+            className="og-ui-select og-premium-form-control"
           >
             {roles.map(
               (role) => (
@@ -145,16 +142,15 @@ export function UserAssignmentForm({
                     role.role_id
                   }
                   value={
-                    role.role_id
+                    role.role_code
                   }
                 >
                   {role.role_name}
                 </option>
-              )
+              ),
             )}
           </select>
         </FormField>
-
 
         <FormField
           label="Operational Scope"
@@ -176,7 +172,7 @@ export function UserAssignmentForm({
               !requiresScope
             }
             defaultValue=""
-            className="og-ui-select h-10 w-full rounded-[10px] px-3 text-[11px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="og-ui-select og-premium-form-control"
           >
             {!requiresScope ? (
               <option value="">
@@ -198,15 +194,16 @@ export function UserAssignmentForm({
                         scope.functloc_id
                       }
                     >
-                      {scope.location_name}
+                      {
+                        scope.location_name
+                      }
                     </option>
-                  )
+                  ),
                 )}
               </>
             )}
           </select>
         </FormField>
-
 
         <FormField
           label="Valid From"
@@ -214,10 +211,9 @@ export function UserAssignmentForm({
           <input
             type="date"
             name="valid_from"
-            className="og-ui-input h-10 w-full rounded-[10px] px-3 text-[11px] outline-none"
+            className="og-ui-input og-premium-form-control"
           />
         </FormField>
-
 
         <FormField
           label="Valid Until"
@@ -226,98 +222,75 @@ export function UserAssignmentForm({
           <input
             type="date"
             name="valid_until"
-            className="og-ui-input h-10 w-full rounded-[10px] px-3 text-[11px] outline-none"
+            className="og-ui-input og-premium-form-control"
           />
         </FormField>
-
       </div>
 
-
-      <div className="grid gap-3 rounded-[12px] border p-4 sm:grid-cols-2"
-        style={{
-          background:
-            "var(--og-surface-soft)",
-
-          borderColor:
-            "var(--og-border-soft)",
-        }}
-      >
-
-        <label className="flex cursor-pointer items-start gap-3">
+      <div className="og-user-assignment-options">
+        <label>
           <input
             type="checkbox"
             name="is_primary"
-            className="mt-0.5 h-4 w-4 accent-[var(--og-cyan-strong)]"
           />
 
           <span>
-            <span className="og-text block text-[10px] font-medium">
+            <strong>
               Primary Role
-            </span>
+            </strong>
 
-            <span className="og-muted mt-0.5 block text-[8px]">
-              Jadikan assignment ini sebagai role utama user.
-            </span>
+            <small>
+              Jadikan assignment ini sebagai
+              role utama pengguna.
+            </small>
           </span>
         </label>
 
-
-        <label className="flex cursor-pointer items-start gap-3">
+        <label>
           <input
             type="checkbox"
             name="include_children"
-            className="mt-0.5 h-4 w-4 accent-[var(--og-cyan-strong)]"
           />
 
           <span>
-            <span className="og-text block text-[10px] font-medium">
+            <strong>
               Include Child Scope
-            </span>
+            </strong>
 
-            <span className="og-muted mt-0.5 block text-[8px]">
-              Berlaku juga pada hierarchy di bawah scope ini.
-            </span>
+            <small>
+              Berlaku juga pada hierarchy
+              di bawah scope ini.
+            </small>
           </span>
         </label>
-
       </div>
 
-
-      <FormField
-        label="Notes"
-      >
+      <FormField label="Notes">
         <textarea
           name="notes"
           rows={3}
           placeholder="Catatan assignment..."
-          className="og-ui-input w-full resize-y rounded-[10px] px-3 py-2.5 text-[11px] outline-none"
+          className="og-ui-input og-premium-form-textarea"
         />
       </FormField>
 
-
-      <div className="flex justify-end border-t pt-4"
-        style={{
-          borderColor:
-            "var(--og-border-soft)",
-        }}
-      >
-        <Button
-          type="submit"
+      <div className="og-user-assignment-submit">
+        <SubmitButton
           disabled={
             roles.length ===
             0
           }
+          pendingText="Adding assignment..."
           leftIcon={
             <Plus
               size={14}
-              strokeWidth={1.8}
+              strokeWidth={1.9}
             />
           }
         >
           Add Assignment
-        </Button>
+        </SubmitButton>
       </div>
-
     </form>
   );
 }

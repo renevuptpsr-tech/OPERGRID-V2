@@ -88,3 +88,44 @@ Stage 2B remains the next administration rebuild milestone and MUST include:
   mutation;
 - disabled action controls while a mutation is pending to prevent repeated
   submissions.
+## Stage 2B — User Detail
+
+User Detail now follows the Premium Rebuild administration language.
+
+Implemented:
+
+- compact identity hero;
+- Profile / Access & Role / Account Status tabs;
+- compact two-column profile forms;
+- sticky save/reset action area;
+- premium assignment cards;
+- Design System assignment dialog;
+- role_code form contract correction;
+- pending-aware assignment submit;
+- pending-aware assignment deactivation;
+- account-status workspace;
+- password-recovery workspace;
+- premium result dialog without hardcoded palette;
+- loading / disabled anti-spam mutation behavior.
+
+Stage 2B continues to preserve all existing Supabase actions and
+authorization boundaries.
+## Stage 2B.1B — Sensitive Action Confirmation
+
+Sensitive User Management mutations now require explicit confirmation.
+
+Covered actions:
+
+- Account Status changes;
+- Role Assignment deactivation;
+- Password Reset Link delivery.
+
+Interaction contract:
+
+- Design System AlertDialog is mandatory;
+- destructive actions use danger confirmation semantics;
+- request processing is protected by transition-based anti-spam;
+- confirm and trigger controls become unavailable while processing;
+- unchanged Account Status cannot be submitted;
+- server actions remain unchanged and continue to redirect into the
+  premium success/error result workflow.

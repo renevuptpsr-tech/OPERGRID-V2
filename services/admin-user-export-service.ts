@@ -199,37 +199,34 @@ function styleBody(
 }
 
 
-async function assertSuperAdmin() {
+async function assertAuthenticated() {
   const supabase =
     await createClient();
 
-
   const {
-    data,
+    data: {
+      user,
+    },
     error,
   } =
-    await supabase.rpc(
-      "opg_fn_is_super_admin"
-    );
+    await supabase.auth
+      .getUser();
 
-
-  if (error) {
+  if (
+    error ||
+    !user
+  ) {
     throw new Error(
-      error.message
+      "Authentication required."
     );
   }
 
-
-  if (!data) {
-    throw new Error(
-      "Hanya Super Administrator yang dapat mengunduh User Data."
-    );
-  }
+  return user;
 }
 
 
 export async function generateAdminUserExport() {
-  await assertSuperAdmin();
+  await assertAuthenticated();
 
 
   const [

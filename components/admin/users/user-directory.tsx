@@ -17,58 +17,84 @@ import {
 import Link from "next/link";
 
 import {
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
 
 import {
+  ConfirmedServerAction,
+} from "@/components/ui/confirmed-server-action";
+
+import {
+  forceDeleteV2UserAction,
+} from "@/app/(platform)/admin/users/actions";
+
+import {
   Badge,
 } from "@/components/ui";
 
+import {
+  UserDirectoryFilterModal,
+  type UserDirectoryFilters,
+} from "@/components/admin/users/user-directory-filter-modal";
+
 import type {
+  AdminDirectoryScopeHierarchyNode,
   AdminUserDirectoryRow,
   UserDirectoryState,
 } from "@/services/admin-user-directory-service";
 
-type DirectoryFilter =
-  | "ALL"
-  | "ASSIGNED"
-  | "UNASSIGNED"
-  | "INACTIVE";
 
 type UserDirectoryProps = {
-  users: AdminUserDirectoryRow[];
+  users:
+    AdminUserDirectoryRow[];
+
+  scopes:
+    AdminDirectoryScopeHierarchyNode[];
+
+  canManageUsers:
+    boolean;
+
+  canExportUsers:
+    boolean;
+
+  canForceDeleteUsers:
+    boolean;
 };
 
-const tabs: Array<{
-  value: DirectoryFilter;
-  label: string;
-}> = [
-  {
-    value: "ALL",
-    label: "All Users",
-  },
-  {
-    value: "ASSIGNED",
-    label: "Assigned",
-  },
-  {
-    value: "UNASSIGNED",
-    label: "Unassigned",
-  },
-  {
-    value: "INACTIVE",
-    label: "Inactive",
-  },
-];
+
+const defaultFilters:
+  UserDirectoryFilters = {
+    status:
+      "ALL",
+
+    roleCode:
+      "",
+
+    uptScopeId:
+      "",
+
+    ultgScopeId:
+      "",
+
+    giScopeId:
+      "",
+  };
+
 
 function stateBadge(
-  state: UserDirectoryState,
+  state:
+    UserDirectoryState,
 ) {
-  switch (state) {
+  switch (
+    state
+  ) {
     case "ASSIGNED":
       return {
-        label: "Assigned",
+        label:
+          "Assigned",
+
         variant:
           "success" as const,
       };
@@ -77,25 +103,31 @@ function stateBadge(
       return {
         label:
           "Pending Provisioning",
+
         variant:
           "warning" as const,
       };
 
     case "UNASSIGNED":
       return {
-        label: "No Access",
+        label:
+          "No Access",
+
         variant:
           "info" as const,
       };
 
     case "INACTIVE":
       return {
-        label: "Inactive",
+        label:
+          "Inactive",
+
         variant:
           "neutral" as const,
       };
   }
 }
+
 
 function DirectoryMetric({
   icon,
@@ -103,10 +135,17 @@ function DirectoryMetric({
   value,
   description,
 }: {
-  icon: ReactNode;
-  label: string;
-  value: number;
-  description: string;
+  icon:
+    ReactNode;
+
+  label:
+    string;
+
+  value:
+    number;
+
+  description:
+    string;
 }) {
   return (
     <article className="og-admin-directory-metric">
@@ -131,11 +170,14 @@ function DirectoryMetric({
   );
 }
 
+
 function TableHead({
   children,
   align = "left",
 }: {
-  children: ReactNode;
+  children:
+    ReactNode;
+
   align?:
     | "left"
     | "right";
@@ -143,41 +185,300 @@ function TableHead({
   return (
     <th
       className="og-admin-directory-th"
-      data-align={align}
+      data-align={
+        align
+      }
     >
       {children}
     </th>
   );
 }
 
+
+function ScopeBadges({
+  user,
+}: {
+  user:
+    AdminUserDirectoryRow;
+}) {
+  const visible =
+    user.assigned_scopes.slice(
+      0,
+      3,
+    );
+
+  const remaining =
+    Math.max(
+      0,
+      user.assigned_scopes.length -
+        visible.length,
+    );
+
+  if (
+    visible.length ===
+    0
+  ) {
+    return (
+      <span className="og-admin-directory-secondary">
+        No operational scope
+      </span>
+    );
+  }
+
+  return (
+    <div className="og-admin-directory-badge-stack">
+      {visible.map(
+        (
+          scope,
+        ) => (
+          <span
+            key={
+              scope.functloc_id ??
+              "GLOBAL"
+            }
+            className="og-admin-directory-scope-badge"
+            data-level={
+              scope.scope_level
+            }
+            title={
+              scope.include_children &&
+              scope.child_count >
+                0
+                ? `${scope.location_name} termasuk ${scope.child_count} child scope`
+                : scope.location_name
+            }
+          >
+            <span>
+              {
+                scope.location_name
+              }
+            </span>
+
+            {scope.include_children &&
+            scope.child_count >
+              0 ? (
+              <small>
+                +
+                {
+                  scope.child_count
+                }
+              </small>
+            ) : null}
+          </span>
+        ),
+      )}
+
+      {remaining >
+      0 ? (
+        <Badge variant="neutral">
+          +
+          {
+            remaining
+          }
+        </Badge>
+      ) : null}
+    </div>
+  );
+}
+
+
+function RoleBadges({
+  user,
+}: {
+  user:
+    AdminUserDirectoryRow;
+}) {
+  const visible =
+    user.roles.slice(
+      0,
+      3,
+    );
+
+  const remaining =
+    Math.max(
+      0,
+      user.roles.length -
+        visible.length,
+    );
+
+  if (
+    visible.length ===
+    0
+  ) {
+    return (
+      <span className="og-admin-directory-secondary">
+        No active access
+      </span>
+    );
+  }
+
+  return (
+    <div className="og-admin-directory-access-wrap">
+      <div className="og-admin-directory-badge-stack">
+        {visible.map(
+          (
+            role,
+          ) => (
+            <Badge
+              key={
+                role.role_code
+              }
+              variant="info"
+            >
+              {
+                role.role_code
+              }
+            </Badge>
+          ),
+        )}
+
+        {remaining >
+        0 ? (
+          <Badge variant="neutral">
+            +
+            {
+              remaining
+            }
+          </Badge>
+        ) : null}
+      </div>
+
+      <span className="og-admin-directory-secondary">
+        {
+          user.roles.length
+        } role
+        {user.roles.length !==
+        1
+          ? "s"
+          : ""}
+
+        {" • "}
+
+        {
+          user.active_assignment_count
+        } assignment
+        {user.active_assignment_count !==
+        1
+          ? "s"
+          : ""}
+      </span>
+    </div>
+  );
+}
+
+
 export function UserDirectory({
   users,
+  scopes,
+  canManageUsers,
+  canExportUsers,
+  canForceDeleteUsers,
 }: UserDirectoryProps) {
   const [
-    filter,
-    setFilter,
+    filters,
+    setFilters,
   ] =
-    useState<DirectoryFilter>(
-      "ALL",
+    useState<UserDirectoryFilters>(
+      defaultFilters,
     );
 
   const [
     search,
     setSearch,
   ] =
-    useState("");
+    useState(
+      "",
+    );
 
   const [
     page,
     setPage,
   ] =
-    useState(1);
+    useState(
+      1,
+    );
 
   const [
     pageSize,
     setPageSize,
   ] =
-    useState(25);
+    useState(
+      25,
+    );
+
+  const roleOptions =
+    useMemo(
+      () => {
+        const map =
+          new Map<
+            string,
+            {
+              role_code:
+                string;
+
+              role_name:
+                string;
+            }
+          >();
+
+        for (
+          const user
+          of users
+        ) {
+          for (
+            const role
+            of user.roles
+          ) {
+            map.set(
+              role.role_code,
+              {
+                role_code:
+                  role.role_code,
+
+                role_name:
+                  role.role_name,
+              },
+            );
+          }
+        }
+
+        return Array.from(
+          map.values(),
+        ).sort(
+          (
+            a,
+            b,
+          ) =>
+            a.role_name.localeCompare(
+              b.role_name,
+            ),
+        );
+      },
+      [
+        users,
+      ],
+    );
+
+  const selectedScopeTargetIds =
+    useMemo(
+      () => {
+        const selectedScopeId =
+          filters.giScopeId ||
+          filters.ultgScopeId ||
+          filters.uptScopeId;
+
+        return selectedScopeId
+          ? new Set([
+              selectedScopeId,
+            ])
+          : null;
+      },
+      [
+        filters.giScopeId,
+        filters.ultgScopeId,
+        filters.uptScopeId,
+      ],
+    );
 
   const normalizedSearch =
     search
@@ -186,41 +487,63 @@ export function UserDirectory({
 
   const filteredUsers =
     users.filter(
-      (user) => {
-        let matchesFilter =
-          true;
-
+      (
+        user,
+      ) => {
         if (
-          filter ===
-          "ASSIGNED"
+          filters.status ===
+          "ASSIGNED" &&
+          user.directory_state !==
+            "ASSIGNED"
         ) {
-          matchesFilter =
-            user.directory_state ===
-            "ASSIGNED";
+          return false;
         }
 
         if (
-          filter ===
-          "UNASSIGNED"
+          filters.status ===
+          "UNASSIGNED" &&
+          user.directory_state !==
+            "UNASSIGNED" &&
+          user.directory_state !==
+            "PENDING_PROVISIONING"
         ) {
-          matchesFilter =
-            user.directory_state ===
-              "UNASSIGNED" ||
-            user.directory_state ===
-              "PENDING_PROVISIONING";
+          return false;
         }
 
         if (
-          filter ===
-          "INACTIVE"
+          filters.status ===
+          "INACTIVE" &&
+          user.directory_state !==
+            "INACTIVE"
         ) {
-          matchesFilter =
-            user.directory_state ===
-            "INACTIVE";
+          return false;
         }
 
         if (
-          !matchesFilter
+          filters.roleCode &&
+          !user.roles.some(
+            (
+              role,
+            ) =>
+              role.role_code ===
+              filters.roleCode,
+          )
+        ) {
+          return false;
+        }
+
+        if (
+          selectedScopeTargetIds &&
+          !user.assigned_scopes.some(
+            (
+              scope,
+            ) =>
+              scope.functloc_id !==
+                null &&
+              selectedScopeTargetIds.has(
+                scope.functloc_id,
+              ),
+          )
         ) {
           return false;
         }
@@ -240,18 +563,26 @@ export function UserDirectory({
               "",
             user.employee_id ??
               "",
-            user.organization_name ??
-              "",
-            user.primary_role_name ??
-              "",
+            ...user.roles.map(
+              (
+                role,
+              ) =>
+                `${role.role_code} ${role.role_name}`,
+            ),
+            ...user.assigned_scopes.map(
+              (
+                scope,
+              ) =>
+                `${scope.scope_level} ${scope.location_name}`,
+            ),
           ]
-            .join(" ")
+            .join(
+              " ",
+            )
             .toLowerCase();
 
-        return (
-          searchable.includes(
-            normalizedSearch,
-          )
+        return searchable.includes(
+          normalizedSearch,
         );
       },
     );
@@ -289,7 +620,8 @@ export function UserDirectory({
     filteredUsers.length ===
     0
       ? 0
-      : startIndex + 1;
+      : startIndex +
+        1;
 
   const visibleTo =
     Math.min(
@@ -300,14 +632,18 @@ export function UserDirectory({
 
   const assignedCount =
     users.filter(
-      (user) =>
+      (
+        user,
+      ) =>
         user.directory_state ===
         "ASSIGNED",
     ).length;
 
   const unassignedCount =
     users.filter(
-      (user) =>
+      (
+        user,
+      ) =>
         user.directory_state ===
           "UNASSIGNED" ||
         user.directory_state ===
@@ -316,7 +652,9 @@ export function UserDirectory({
 
   const inactiveCount =
     users.filter(
-      (user) =>
+      (
+        user,
+      ) =>
         user.directory_state ===
         "INACTIVE",
     ).length;
@@ -332,7 +670,9 @@ export function UserDirectory({
             />
           }
           label="Total Users"
-          value={users.length}
+          value={
+            users.length
+          }
           description="Authentication accounts"
         />
 
@@ -344,7 +684,9 @@ export function UserDirectory({
             />
           }
           label="Assigned"
-          value={assignedCount}
+          value={
+            assignedCount
+          }
           description="Users with active access"
         />
 
@@ -356,7 +698,9 @@ export function UserDirectory({
             />
           }
           label="Unassigned"
-          value={unassignedCount}
+          value={
+            unassignedCount
+          }
           description="Provisioning or access required"
         />
 
@@ -368,7 +712,9 @@ export function UserDirectory({
             />
           }
           label="Inactive"
-          value={inactiveCount}
+          value={
+            inactiveCount
+          }
           description="Inactive OPERGRID profiles"
         />
       </section>
@@ -389,106 +735,71 @@ export function UserDirectory({
               </h2>
 
               <p className="og-admin-directory-description">
-                Manage authentication accounts,
-                OPERGRID profiles, roles, and
-                operational access.
+                Directory user berdasarkan role
+                dan operational scope.
               </p>
             </div>
           </div>
 
           <div className="og-admin-directory-actions">
-            <a
-              href="/api/admin/users/template"
-              className="og-admin-action-button"
-            >
-              <Download
-                size={15}
-                strokeWidth={1.9}
-              />
+            {canManageUsers ? (
+              <>
+                <a
+                  href="/api/admin/users/template"
+                  className="og-admin-action-button"
+                >
+                  <Download
+                    size={15}
+                    strokeWidth={1.9}
+                  />
 
-              Template
-            </a>
+                  Template
+                </a>
 
-            <a
-              href="/api/admin/users/export"
-              className="og-admin-action-button"
-            >
-              <FileDown
-                size={15}
-                strokeWidth={1.9}
-              />
+                <Link
+                  href="/admin/users/import"
+                  className="og-admin-action-button"
+                >
+                  <Upload
+                    size={15}
+                    strokeWidth={1.9}
+                  />
 
-              Export
-            </a>
+                  Import
+                </Link>
 
-            <Link
-              href="/admin/users/import"
-              className="og-admin-action-button"
-            >
-              <Upload
-                size={15}
-                strokeWidth={1.9}
-              />
+                <Link
+                  href="/admin/users/new"
+                  className="og-admin-action-button"
+                  data-variant="primary"
+                >
+                  <CirclePlus
+                    size={15}
+                    strokeWidth={2}
+                  />
 
-              Import
-            </Link>
+                  Add User
+                </Link>
+              </>
+            ) : null}
 
-            <Link
-              href="/admin/users/new"
-              className="og-admin-action-button"
-              data-variant="primary"
-            >
-              <CirclePlus
-                size={15}
-                strokeWidth={2}
-              />
+            {canExportUsers ? (
+              <a
+                href="/api/admin/users/export"
+                className="og-admin-action-button"
+              >
+                <FileDown
+                  size={15}
+                  strokeWidth={1.9}
+                />
 
-              Add User
-            </Link>
+                Export
+              </a>
+            ) : null}
           </div>
         </header>
 
         <div className="og-admin-directory-toolbar">
-          <div
-            className="og-admin-directory-tabs"
-            role="group"
-            aria-label="User directory filter"
-          >
-            {tabs.map(
-              (tab) => {
-                const active =
-                  filter ===
-                  tab.value;
-
-                return (
-                  <button
-                    key={
-                      tab.value
-                    }
-                    type="button"
-                    className="og-admin-directory-tab"
-                    data-active={
-                      active ||
-                      undefined
-                    }
-                    aria-pressed={
-                      active
-                    }
-                    onClick={() => {
-                      setFilter(
-                        tab.value,
-                      );
-
-                      setPage(1);
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              },
-            )}
-          </div>
-
           <label className="og-admin-directory-search">
             <Search
               size={15}
@@ -498,7 +809,9 @@ export function UserDirectory({
 
             <input
               type="search"
-              value={search}
+              value={
+                search
+              }
               onChange={(
                 event,
               ) => {
@@ -506,12 +819,37 @@ export function UserDirectory({
                   event.target.value,
                 );
 
-                setPage(1);
+                setPage(
+                  1,
+                );
               }}
-              placeholder="Search name, email, employee ID, organization or role"
+              placeholder="Search name, email, NIP, role or unit scope"
               aria-label="Search users"
             />
           </label>
+
+          <UserDirectoryFilterModal
+            value={
+              filters
+            }
+            onApply={(
+              nextFilters,
+            ) => {
+              setFilters(
+                nextFilters,
+              );
+
+              setPage(
+                1,
+              );
+            }}
+            roles={
+              roleOptions
+            }
+            scopes={
+              scopes
+            }
+          />
         </div>
 
         <div className="og-admin-directory-table-scroll">
@@ -523,7 +861,7 @@ export function UserDirectory({
                 </TableHead>
 
                 <TableHead>
-                  Organization
+                  Unit Scope
                 </TableHead>
 
                 <TableHead>
@@ -561,15 +899,16 @@ export function UserDirectory({
                       </strong>
 
                       <span>
-                        Adjust the search term or
-                        directory filter.
+                        Adjust search or filter criteria.
                       </span>
                     </div>
                   </td>
                 </tr>
               ) : (
                 paginatedUsers.map(
-                  (user) => {
+                  (
+                    user,
+                  ) => {
                     const status =
                       stateBadge(
                         user.directory_state,
@@ -597,16 +936,20 @@ export function UserDirectory({
 
                             <div className="og-admin-directory-user-copy">
                               <strong>
-                                {displayName}
+                                {
+                                  displayName
+                                }
                               </strong>
 
                               <span>
-                                {user.email}
+                                {
+                                  user.email
+                                }
                               </span>
 
                               {user.employee_id ? (
                                 <small>
-                                  ID:{" "}
+                                  NIP:{" "}
                                   {
                                     user.employee_id
                                   }
@@ -617,45 +960,19 @@ export function UserDirectory({
                         </td>
 
                         <td>
-                          <div className="og-admin-directory-primary">
-                            {user.organization_name ??
-                              "—"}
-                          </div>
-
-                          {user.user_type_code ? (
-                            <div className="og-admin-directory-secondary">
-                              {
-                                user.user_type_code
-                              }
-                            </div>
-                          ) : null}
+                          <ScopeBadges
+                            user={
+                              user
+                            }
+                          />
                         </td>
 
                         <td>
-                          {user.active_assignment_count >
-                          0 ? (
-                            <>
-                              <div className="og-admin-directory-primary">
-                                {user.primary_role_name ??
-                                  "Assigned"}
-                              </div>
-
-                              <div className="og-admin-directory-secondary">
-                                {
-                                  user.active_assignment_count
-                                }{" "}
-                                active assignment
-                                {user.active_assignment_count >
-                                1
-                                  ? "s"
-                                  : ""}
-                              </div>
-                            </>
-                          ) : (
-                            <span className="og-admin-directory-secondary">
-                              No active access
-                            </span>
-                          )}
+                          <RoleBadges
+                            user={
+                              user
+                            }
+                          />
                         </td>
 
                         <td>
@@ -672,7 +989,8 @@ export function UserDirectory({
 
                         <td data-align="right">
                           {user.directory_state ===
-                          "PENDING_PROVISIONING" ? (
+                            "PENDING_PROVISIONING" &&
+                          canManageUsers ? (
                             <Link
                               href={`/admin/users/new?existing_auth_user_id=${encodeURIComponent(
                                 user.user_id,
@@ -685,21 +1003,41 @@ export function UserDirectory({
                               Provision
                             </Link>
                           ) : user.directory_state ===
-                            "UNASSIGNED" ? (
-                            <Link
-                              href={`/admin/users/${user.user_id}?tab=access`}
-                              className="og-admin-row-action"
-                              data-emphasis="accent"
-                            >
-                              Assign Access
-                            </Link>
+                            "PENDING_PROVISIONING" ? (
+                            <span className="og-admin-directory-secondary">
+                              Pending
+                            </span>
                           ) : (
-                            <Link
-                              href={`/admin/users/${user.user_id}`}
-                              className="og-admin-row-action"
-                            >
-                              Open
-                            </Link>
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                href={`/admin/users/${user.user_id}`}
+                                className="og-admin-row-action"
+                              >
+                                Open
+                              </Link>
+
+                              {canForceDeleteUsers ? (
+                                <ConfirmedServerAction
+                                  action={
+                                    forceDeleteV2UserAction
+                                  }
+                                  fields={{
+                                    user_id:
+                                      user.user_id,
+                                  }}
+                                  triggerLabel="Force Delete"
+                                  confirmTitle="Force Delete User"
+                                  confirmDescription={
+                                    <>
+                                      Profile dan seluruh access OPERGRID V2 untuk <strong>{user.email}</strong> akan dihapus permanen. Akun Supabase Auth tetap dipertahankan.
+                                    </>
+                                  }
+                                  confirmLabel="Force Delete"
+                                  triggerVariant="danger"
+                                  triggerSize="sm"
+                                />
+                              ) : null}
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -715,11 +1053,15 @@ export function UserDirectory({
           <div className="og-admin-directory-result">
             Showing{" "}
             <strong>
-              {visibleFrom}
+              {
+                visibleFrom
+              }
             </strong>
             {" – "}
             <strong>
-              {visibleTo}
+              {
+                visibleTo
+              }
             </strong>
             {" of "}
             <strong>
@@ -737,7 +1079,9 @@ export function UserDirectory({
               </span>
 
               <select
-                value={pageSize}
+                value={
+                  pageSize
+                }
                 onChange={(
                   event,
                 ) => {
@@ -747,7 +1091,9 @@ export function UserDirectory({
                     ),
                   );
 
-                  setPage(1);
+                  setPage(
+                    1,
+                  );
                 }}
                 aria-label="Rows per page"
               >
@@ -768,31 +1114,37 @@ export function UserDirectory({
             <span className="og-admin-directory-page-number">
               Page{" "}
               <strong>
-                {currentPage}
+                {
+                  currentPage
+                }
               </strong>
               {" of "}
               <strong>
-                {totalPages}
+                {
+                  totalPages
+                }
               </strong>
             </span>
 
             <button
               type="button"
-              className="og-admin-page-button"
+              aria-label="Previous page"
               disabled={
                 currentPage <=
                 1
               }
               onClick={() =>
                 setPage(
-                  Math.max(
-                    1,
-                    currentPage -
+                  (
+                    current,
+                  ) =>
+                    Math.max(
                       1,
-                  ),
+                      current -
+                        1,
+                    ),
                 )
               }
-              aria-label="Previous page"
             >
               <ChevronLeft
                 size={15}
@@ -801,21 +1153,23 @@ export function UserDirectory({
 
             <button
               type="button"
-              className="og-admin-page-button"
+              aria-label="Next page"
               disabled={
                 currentPage >=
                 totalPages
               }
               onClick={() =>
                 setPage(
-                  Math.min(
-                    totalPages,
-                    currentPage +
-                      1,
-                  ),
+                  (
+                    current,
+                  ) =>
+                    Math.min(
+                      totalPages,
+                      current +
+                        1,
+                    ),
                 )
               }
-              aria-label="Next page"
             >
               <ChevronRight
                 size={15}

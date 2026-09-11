@@ -1,3 +1,9 @@
+import "server-only";
+
+import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
 import {
   createClient,
 } from "@/lib/supabase/server";
@@ -7,6 +13,47 @@ import {
    TYPES
    ========================================================= */
 
+
+export type UserDetailCapabilities = {
+  viewer_user_id:
+    string;
+
+  target_user_id:
+    string;
+
+  is_self:
+    boolean;
+
+  is_admin:
+    boolean;
+
+  is_super_admin:
+    boolean;
+
+  can_edit_personal:
+    boolean;
+
+  can_edit_organization:
+    boolean;
+
+  can_edit_contact:
+    boolean;
+
+  can_add_role:
+    boolean;
+
+  can_deactivate_assignment:
+    boolean;
+
+  can_delete_assignment:
+    boolean;
+
+  can_change_status:
+    boolean;
+
+  can_password_recovery:
+    boolean;
+};
 export type AdminUserDetail = {
   user_id: string;
 
@@ -299,20 +346,34 @@ export async function getAdminUserDetail(
       .maybeSingle();
 
 
-  const emailPromise =
-    supabase.rpc(
-      "opg_admin_list_users",
-      {
-        p_search:
-          userId,
+  const {
+    data: {
+      user:
+        viewer,
+    },
+    error:
+      viewerError,
+  } =
+    await supabase.auth
+      .getUser();
 
-        p_limit:
-          5,
-
-        p_offset:
-          0,
-      }
+  if (
+    viewerError ||
+    !viewer
+  ) {
+    throw new Error(
+      "Authentication required."
     );
+  }
+
+  const admin =
+    createAdminClient();
+
+  const emailPromise =
+    admin.auth.admin
+      .getUserById(
+        userId
+      );
 
 
   const [
@@ -350,20 +411,10 @@ export async function getAdminUserDetail(
 
 
   if (
-    !listResult.error &&
-    Array.isArray(
-      listResult.data
-    )
+    !listResult.error
   ) {
-    const exact =
-      listResult.data.find(
-        (item) =>
-          item.user_id ===
-          userId
-      );
-
     email =
-      exact?.email ??
+      listResult.data.user?.email ??
       null;
   }
 
@@ -473,7 +524,7 @@ export async function getAdminUserAssignments(
     error,
   } =
     await supabase.rpc(
-      "opg_admin_user_assignments",
+      "opg_fn_user_detail_assignments",
       {
         p_user_id:
           userId,
@@ -996,7 +1047,7 @@ export async function setAdminUserStatus(
     error,
   } =
     await supabase.rpc(
-      "opg_admin_set_user_status",
+      "opg_user_detail_set_status",
       {
         p_user_id:
           userId,
@@ -1033,7 +1084,7 @@ export async function assignAdminUserRole(
     error,
   } =
     await supabase.rpc(
-      "opg_admin_assign_role",
+      "opg_user_detail_assign_role",
       {
         p_user_id:
           input.userId,
@@ -1092,7 +1143,7 @@ export async function deactivateAdminUserAssignment(
     error,
   } =
     await supabase.rpc(
-      "opg_admin_deactivate_assignment",
+      "opg_user_detail_deactivate_assignment",
       {
         p_assignment_id:
           assignmentId,
@@ -1106,6 +1157,299 @@ export async function deactivateAdminUserAssignment(
     );
   }
 
+
+  return data;
+}
+/* =========================================================
+   USER DETAIL CAPABILITIES
+   ========================================================= */
+
+export async function getUserDetailCapabilities(
+  targetUserId: string
+): Promise<UserDetailCapabilities> {
+  const supabase =
+    await createClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "opg_fn_user_detail_capabilities",
+      {
+        p_target_user_id:
+          targetUserId,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+
+  const row =
+    Array.isArray(data)
+      ? data[0]
+      : data;
+
+  if (!row) {
+    throw new Error(
+      "Authentication required."
+    );
+  }
+
+  return {
+    viewer_user_id:
+      row.viewer_user_id,
+
+    target_user_id:
+      row.target_user_id,
+
+    is_self:
+      Boolean(
+        row.is_self
+      ),
+
+    is_admin:
+      Boolean(
+        row.is_admin
+      ),
+
+    is_super_admin:
+      Boolean(
+        row.is_super_admin
+      ),
+
+    can_edit_personal:
+      Boolean(
+        row.can_edit_personal
+      ),
+
+    can_edit_organization:
+      Boolean(
+        row.can_edit_organization
+      ),
+
+    can_edit_contact:
+      Boolean(
+        row.can_edit_contact
+      ),
+
+    can_add_role:
+      Boolean(
+        row.can_add_role
+      ),
+
+    can_deactivate_assignment:
+      Boolean(
+        row.can_deactivate_assignment
+      ),
+
+    can_delete_assignment:
+      Boolean(
+        row.can_delete_assignment
+      ),
+
+    can_change_status:
+      Boolean(
+        row.can_change_status
+      ),
+
+    can_password_recovery:
+      Boolean(
+        row.can_password_recovery
+      ),
+  };
+}
+
+
+/* =========================================================
+   PERSONAL INFORMATION
+   SUPER_ADMIN ONLY
+   ========================================================= */
+
+export async function updateUserPersonalInformation(input: {
+  userId:
+    string;
+
+  employeeId:
+    string | null;
+
+  fullName:
+    string;
+
+  displayName:
+    string | null;
+
+  jobId:
+    string | null;
+}) {
+  const supabase =
+    await createClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "opg_user_detail_update_personal",
+      {
+        p_user_id:
+          input.userId,
+
+        p_employee_id:
+          input.employeeId ?? "",
+
+        p_full_name:
+          input.fullName,
+
+        p_display_name:
+          input.displayName ?? undefined,
+
+        p_job_id:
+          input.jobId ?? undefined,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+
+  return data;
+}
+
+
+/* =========================================================
+   ORGANIZATION
+   ADMIN / SUPER_ADMIN
+   ========================================================= */
+
+export async function updateUserOrganization(input: {
+  userId:
+    string;
+
+  organizationId:
+    string | null;
+
+  userTypeCode:
+    string;
+}) {
+  const supabase =
+    await createClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "opg_user_detail_update_organization",
+      {
+        p_user_id:
+          input.userId,
+
+        p_organization_id:
+          input.organizationId ?? undefined,
+
+        p_user_type_code:
+          input.userTypeCode,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+
+  return data;
+}
+
+
+/* =========================================================
+   CONTACT
+   SELF / ADMIN / SUPER_ADMIN
+   ========================================================= */
+
+export async function updateUserContactInformation(input: {
+  userId:
+    string;
+
+  phoneNumber:
+    string | null;
+
+  telegramUsername:
+    string | null;
+
+  telegramUserId:
+    number | null;
+}) {
+  const supabase =
+    await createClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "opg_user_detail_update_contact",
+      {
+        p_user_id:
+          input.userId,
+
+        p_phone_number:
+          input.phoneNumber ?? undefined,
+
+        p_telegram_username:
+          input.telegramUsername ?? undefined,
+
+        p_telegram_user_id:
+          input.telegramUserId ?? undefined,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+
+  return data;
+}
+
+
+/* =========================================================
+   DELETE ROLE ASSIGNMENT
+   SUPER_ADMIN ONLY
+   Assignment must already be inactive.
+   ========================================================= */
+
+export async function deleteAdminUserAssignment(
+  assignmentId:
+    string
+) {
+  const supabase =
+    await createClient();
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "opg_user_detail_delete_assignment",
+      {
+        p_assignment_id:
+          assignmentId,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
 
   return data;
 }

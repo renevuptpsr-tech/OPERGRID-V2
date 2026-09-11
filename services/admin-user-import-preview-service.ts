@@ -662,19 +662,17 @@ function parseAccess(
 }
 
 
-async function assertSuperAdmin() {
+async function assertAdminOrSuperAdmin() {
   const supabase =
     await createClient();
-
 
   const {
     data,
     error,
   } =
     await supabase.rpc(
-      "opg_fn_is_super_admin"
+      "opg_fn_is_admin_or_super_admin"
     );
-
 
   if (error) {
     throw new Error(
@@ -682,10 +680,9 @@ async function assertSuperAdmin() {
     );
   }
 
-
   if (!data) {
     throw new Error(
-      "Hanya Super Administrator yang dapat melakukan User Import."
+      "Hanya Administrator atau Super Administrator yang dapat melakukan User Import."
     );
   }
 }
@@ -698,7 +695,7 @@ export async function previewUserImport(
     Uint8Array
 ):
   Promise<UserImportPreviewResult> {
-  await assertSuperAdmin();
+  await assertAdminOrSuperAdmin();
 
 
   const workbook =
