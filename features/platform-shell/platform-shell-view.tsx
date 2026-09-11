@@ -220,6 +220,9 @@ export function PlatformShellView({
       }
       userControl={
         <PlatformUserControl
+          userId={
+            identity.userId
+          }
           displayName={
             identity.displayName
           }

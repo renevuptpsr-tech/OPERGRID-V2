@@ -34,6 +34,9 @@ export function resolvePlatformShellIdentity(
     "User";
 
   return {
+    userId:
+      context.user.id,
+
     displayName,
     roleLabel,
   };

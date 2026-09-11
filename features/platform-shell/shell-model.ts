@@ -10,6 +10,7 @@ export type PlatformShellModuleAccess = {
 };
 
 export type PlatformShellIdentity = {
+  userId: string;
   displayName: string;
   roleLabel: string;
 };

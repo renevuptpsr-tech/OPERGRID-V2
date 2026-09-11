@@ -574,3 +574,29 @@ test("Phase 6D visual correction remains scoped and contains no new hardcoded pa
     /#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i,
   );
 });
+
+test("profile menu opens the current authenticated user detail", () => {
+  const adapter =
+    read("context-adapter.ts");
+
+  const control =
+    read("platform-user-control.tsx");
+
+  const view =
+    read("platform-shell-view.tsx");
+
+  assert.match(
+    adapter,
+    /context\.user\.id/,
+  );
+
+  assert.match(
+    control,
+    /\/admin\/users\/\$\{userId\}/,
+  );
+
+  assert.match(
+    view,
+    /identity\.userId/,
+  );
+});

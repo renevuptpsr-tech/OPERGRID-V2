@@ -13,11 +13,13 @@ import {
 } from "@/lib/supabase/client";
 
 export type PlatformUserControlProps = {
+  userId: string;
   displayName: string;
   roleLabel: string;
 };
 
 export function PlatformUserControl({
+  userId,
   displayName,
   roleLabel,
 }: PlatformUserControlProps) {
@@ -35,7 +37,7 @@ export function PlatformUserControl({
   }
 
   function handleProfile() {
-    router.push("/profile");
+    router.push(`/admin/users/${userId}`);
   }
 
   return (
